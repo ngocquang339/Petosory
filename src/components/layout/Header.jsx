@@ -33,7 +33,6 @@ export const Header = () => {
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
-  const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
   const handleSearchSubmit = (e) => {
@@ -77,65 +76,11 @@ export const Header = () => {
           </div>
         </div>
 
-        {/* Demo Role Switcher */}
-        <div className="flex items-center gap-2">
-          <span className="hidden md:inline text-slate-400">Chế độ Demo:</span>
-          <div className="relative">
-            <button
-              onClick={() => setRoleDropdownOpen(!roleDropdownOpen)}
-              className="flex items-center gap-1 px-2 py-0.5 rounded bg-orange-500/20 text-orange-300 hover:bg-orange-500/30 border border-orange-500/30 font-medium cursor-pointer"
-            >
-              <span>
-                Role: {role === ROLES.CUSTOMER ? 'Khách hàng (Customer)' : role === ROLES.SPA_OWNER ? 'Chủ Spa (Owner)' : 'Khách vãng lai (Guest)'}
-              </span>
-              <ChevronDown className="w-3 h-3" />
-            </button>
-
-            {roleDropdownOpen && (
-              <div
-                className="absolute right-0 mt-1 w-52 bg-white dark:bg-slate-800 rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 py-1 z-50 text-slate-700 dark:text-slate-200"
-                onClick={() => setRoleDropdownOpen(false)}
-              >
-                <div className="px-3 py-1.5 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-                  Chuyển quyền kiểm thử
-                </div>
-                <button
-                  onClick={() => loginAsDemo(ROLES.CUSTOMER)}
-                  className="w-full text-left px-3 py-1.5 text-xs hover:bg-orange-50 dark:hover:bg-slate-700 flex items-center justify-between"
-                >
-                  <span>Khách hàng (Customer)</span>
-                  {role === ROLES.CUSTOMER && <span className="text-orange-500 font-bold">✓</span>}
-                </button>
-                <button
-                  onClick={() => loginAsDemo(ROLES.SPA_OWNER)}
-                  className="w-full text-left px-3 py-1.5 text-xs hover:bg-orange-50 dark:hover:bg-slate-700 flex items-center justify-between"
-                >
-                  <span>Chủ Spa (Spa Owner)</span>
-                  {role === ROLES.SPA_OWNER && <span className="text-orange-500 font-bold">✓</span>}
-                </button>
-                <button
-                  onClick={() => logout()}
-                  className="w-full text-left px-3 py-1.5 text-xs hover:bg-orange-50 dark:hover:bg-slate-700 flex items-center justify-between text-rose-500"
-                >
-                  <span>Khách vãng lai (Guest)</span>
-                  {role === ROLES.GUEST && <span className="text-orange-500 font-bold">✓</span>}
-                </button>
-              </div>
-            )}
-          </div>
-
-          <button
-            type="button"
-            onClick={toggleTheme}
-            className="p-1.5 rounded-full bg-slate-800 hover:bg-slate-700 border border-slate-700 cursor-pointer transition-all flex items-center justify-center hover:scale-110 active:scale-95 ml-1"
-            title={theme === 'dark' ? 'Chuyển sang chế độ Sáng' : 'Chuyển sang chế độ Tối'}
-          >
-            {theme === 'dark' ? (
-              <Sun className="w-4 h-4 text-amber-400 fill-amber-400" />
-            ) : (
-              <Moon className="w-4 h-4 text-sky-300" />
-            )}
-          </button>
+        {/* Contact info & Perks */}
+        <div className="hidden sm:flex items-center gap-4 text-slate-400">
+          <span>Hotline CSKH: <strong className="text-orange-400">1900 6868</strong></span>
+          <span className="text-slate-600">•</span>
+          <span>Giao nhanh 2H • Miễn phí vận chuyển từ 500k</span>
         </div>
       </div>
 
