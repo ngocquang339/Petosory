@@ -1,0 +1,501 @@
+export const ROLES = {
+  GUEST: 'guest',
+  CUSTOMER: 'customer',
+  SPA_OWNER: 'spa_owner',
+  ADMIN: 'admin',
+};
+
+export const ORDER_STATUS = {
+  PENDING: { label: 'Chờ xác nhận', color: 'bg-yellow-100 text-yellow-800 border-yellow-300' },
+  PROCESSING: { label: 'Đang chuẩn bị hàng', color: 'bg-blue-100 text-blue-800 border-blue-300' },
+  SHIPPING: { label: 'Đang giao hàng', color: 'bg-purple-100 text-purple-800 border-purple-300' },
+  DELIVERED: { label: 'Đã giao thành công', color: 'bg-emerald-100 text-emerald-800 border-emerald-300' },
+  CANCELLED: { label: 'Đã hủy', color: 'bg-red-100 text-red-800 border-red-300' },
+};
+
+export const CITIES = [
+  { id: 'hanoi', name: 'Hà Nội', lat: 21.0285, lng: 105.8542 },
+  { id: 'danang', name: 'Đà Nẵng', lat: 16.0544, lng: 108.2022 },
+  { id: 'hcm', name: 'TP. Hồ Chí Minh', lat: 10.8231, lng: 106.6297 },
+];
+
+export const PRODUCT_CATEGORIES = [
+  { id: 'all', name: 'Tất cả' },
+  { id: 'food', name: 'Thức ăn & Hạt' },
+  { id: 'treats', name: 'Bánh thưởng & Pate' },
+  { id: 'accessories', name: 'Phụ kiện & Đồ chơi' },
+  { id: 'hygiene', name: 'Vệ sinh & Tắm gội' },
+  { id: 'health', name: 'Y tế & Thực phẩm bổ sung' },
+];
+
+export const INITIAL_PRODUCTS = [
+  {
+    id: 'prod-1',
+    name: 'Thức ăn hạt Royal Canin Mini Puppy cho chó con',
+    category: 'food',
+    petType: 'dog',
+    price: 385000,
+    originalPrice: 420000,
+    rating: 4.9,
+    reviewCount: 142,
+    stock: 45,
+    image: 'https://images.unsplash.com/photo-1589924691995-400dc9ecc119?w=600&auto=format&fit=crop&q=80',
+    description: 'Thức ăn dinh dưỡng hoàn chỉnh dành riêng cho chó con giống nhỏ (trọng lượng trưởng thành đến 10kg) từ 2 đến 10 tháng tuổi. Hỗ trợ hệ miễn dịch tự nhiên và tiêu hóa khỏe mạnh.',
+    features: ['Hạt dễ nhai cho hàm răng nhỏ', 'Chứa Protein L.I.P tiêu hóa cực tốt', 'Tăng cường đề kháng tự nhiên với vitamin E'],
+    brand: 'Royal Canin',
+    isFeatured: true,
+  },
+  {
+    id: 'prod-2',
+    name: 'Pate Me-O vị cá hồi thơm ngon cho mèo',
+    category: 'treats',
+    petType: 'cat',
+    price: 22000,
+    originalPrice: 28000,
+    rating: 4.8,
+    reviewCount: 96,
+    stock: 120,
+    image: 'https://images.unsplash.com/photo-1548767797-d8c844163c4c?w=600&auto=format&fit=crop&q=80',
+    description: 'Pate mềm ngon miệng từ thịt cá hồi tươi kết hợp vitamin tổng hợp, giúp kích thích vị giác của mèo cưng và cung cấp đầy đủ nước cho cơ thể.',
+    features: ['Cá hồi tự nhiên giàu Omega 3 & 6', 'Mượt lông, sáng mắt', 'Không phẩm màu độc hại'],
+    brand: 'Me-O',
+    isFeatured: true,
+  },
+  {
+    id: 'prod-3',
+    name: 'Cây cào móng tích hợp nhà cây Cat Tree cao cấp 3 tầng',
+    category: 'accessories',
+    petType: 'cat',
+    price: 650000,
+    originalPrice: 790000,
+    rating: 4.9,
+    reviewCount: 58,
+    stock: 15,
+    image: 'https://images.unsplash.com/photo-1545249390-6bdfa286032f?w=600&auto=format&fit=crop&q=80',
+    description: 'Nhà cây cao cấp bọc thừng sisal tự nhiên giúp mèo thỏa thích cào móng, leo trèo và nghỉ ngơi ấm cúng mà không làm xước đồ nội thất trong nhà.',
+    features: ['Vật liệu gỗ ép phủ nỉ êm ái', 'Dây thừng gai tự nhiên bền bỉ', 'Trọng tâm vững chãi chống lật'],
+    brand: 'Petosory Home',
+    isFeatured: true,
+  },
+  {
+    id: 'prod-4',
+    name: 'Sữa tắm SOS chuyên dụng làm mềm mượt lông chó mèo',
+    category: 'hygiene',
+    petType: 'both',
+    price: 145000,
+    originalPrice: 170000,
+    rating: 4.7,
+    reviewCount: 215,
+    stock: 80,
+    image: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=600&auto=format&fit=crop&q=80',
+    description: 'Sữa tắm nhập khẩu SOS giữ hương thơm lâu dài lên đến 7 ngày, khử sạch mùi hôi, dưỡng ẩm cho da và giúp lông bóng mượt.',
+    features: ['Lưu hương thơm mát 7-10 ngày', 'Kháng khuẩn và chống ve rận nhẹ', 'Độ pH dịu nhẹ phù hợp cho thú cưng'],
+    brand: 'SOS',
+    isFeatured: true,
+  },
+  {
+    id: 'prod-5',
+    name: 'Gel dinh dưỡng Nourse 21 tăng cân hồi sức cho chó mèo',
+    category: 'health',
+    petType: 'both',
+    price: 165000,
+    originalPrice: 195000,
+    rating: 4.9,
+    reviewCount: 88,
+    stock: 60,
+    image: 'https://images.unsplash.com/photo-1535268647677-300dbf3d78d1?w=600&auto=format&fit=crop&q=80',
+    description: 'Bổ sung năng lượng tức thì, vitamin A, D, E, B-complex và khoáng chất cần thiết cho thú cưng ốm, mang thai hoặc sau sinh.',
+    features: ['Vị béo ngậy dễ ăn', 'Hấp thu nhanh chóng', 'Hồi phục thể lực nhanh'],
+    brand: 'Nourse',
+    isFeatured: false,
+  },
+  {
+    id: 'prod-6',
+    name: 'Đồ chơi gặm nhấm hình xương cao su phát tiếng kêu',
+    category: 'accessories',
+    petType: 'dog',
+    price: 49000,
+    originalPrice: 65000,
+    rating: 4.6,
+    reviewCount: 42,
+    stock: 95,
+    image: 'https://images.unsplash.com/photo-1576201836106-db1758fd1c97?w=600&auto=format&fit=crop&q=80',
+    description: 'Đồ chơi xương bằng cao su thiên nhiên dai bền, hỗ trợ làm sạch mảng bám trên răng và giảm căng thẳng cho cún cưng.',
+    features: ['Chất liệu cao su dẻo an toàn tuyệt đối', 'Tích hợp kèn còi vui nhộn', 'Vệ sinh răng miệng hiệu quả'],
+    brand: 'PetToy',
+    isFeatured: false,
+  },
+  {
+    id: 'prod-7',
+    name: 'Cát vệ sinh đậu nành Cature Tofu hút mùi siêu nhanh 6L',
+    category: 'hygiene',
+    petType: 'cat',
+    price: 135000,
+    originalPrice: 155000,
+    rating: 4.8,
+    reviewCount: 310,
+    stock: 150,
+    image: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=600&auto=format&fit=crop&q=80',
+    description: 'Cát hữu cơ 100% từ bã đậu phụ thiên nhiên, vón cục nhanh, kiểm soát mùi hôi vượt trội và có thể xả trực tiếp vào bồn cầu.',
+    features: ['Tan trong nước xả bồn cầu an toàn', 'Không bụi 99.5% bảo vệ hô hấp', 'Khử mùi kháng khuẩn tự nhiên'],
+    brand: 'Cature',
+    isFeatured: true,
+  },
+  {
+    id: 'prod-8',
+    name: 'Dây dắt kèm yếm ngực phản quang dạ quang an toàn ban đêm',
+    category: 'accessories',
+    petType: 'dog',
+    price: 120000,
+    originalPrice: 150000,
+    rating: 4.7,
+    reviewCount: 77,
+    stock: 50,
+    image: 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=600&auto=format&fit=crop&q=80',
+    description: 'Thiết kế yếm chữ H phân tán lực kéo đều cơ thể, không siết cổ cún cưng. Viền phản quang sáng rõ trong bóng tối khi đi dạo đêm.',
+    features: ['Dải dạ quang phản xạ ánh sáng xe', 'Khóa bấm kim loại chống rỉ', 'Đệm lót thoáng khí tổ ong'],
+    brand: 'Petosory Safe',
+    isFeatured: false,
+  },
+];
+
+export const INITIAL_SPAS = [
+  {
+    id: 'spa-1',
+    name: 'Petosory Flagship Spa & Grooming',
+    city: 'hanoi',
+    address: '142 Hoàng Cầu, Đống Đa, Hà Nội',
+    phone: '0988 123 456',
+    lat: 21.0189,
+    lng: 105.8234,
+    rating: 4.9,
+    reviewCount: 382,
+    openTime: '08:00 - 20:30',
+    isOpen: true,
+    image: 'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?w=800&auto=format&fit=crop&q=80',
+    services: [
+      { name: 'Tắm spa sục ozon & sấy tạo kiểu', price: 180000, duration: '60 phút' },
+      { name: 'Cắt tỉa lông chuyên nghiệp theo yêu cầu', price: 250000, duration: '90 phút' },
+      { name: 'Cạo vôi răng & vệ sinh tai móng', price: 120000, duration: '30 phút' },
+      { name: 'Khách sạn thú cưng chuẩn 5 sao', price: 200000, duration: '1 đêm' },
+    ],
+    description: 'Trung tâm chăm sóc & làm đẹp thú cưng hàng đầu Hà Nội với đội ngũ groomer giàu kinh nghiệm, phòng spa máy lạnh và trang thiết bị hiện đại.',
+    verified: true,
+  },
+  {
+    id: 'spa-2',
+    name: 'Phòng khám & Spa Thú Y PetCare Tây Hồ',
+    city: 'hanoi',
+    address: '88 Xuân Diệu, Quảng An, Tây Hồ, Hà Nội',
+    phone: '0977 456 789',
+    lat: 21.0628,
+    lng: 105.8285,
+    rating: 4.8,
+    reviewCount: 215,
+    openTime: '08:30 - 21:00',
+    isOpen: true,
+    image: 'https://images.unsplash.com/photo-1628009368231-7bb7cfcb0def?w=800&auto=format&fit=crop&q=80',
+    services: [
+      { name: 'Khám sức khỏe tổng quát & tiêm phòng vaccine', price: 150000, duration: '30 phút' },
+      { name: 'Combo tắm dưỡng ẩm tinh dầu thảo mộc', price: 220000, duration: '60 phút' },
+      { name: 'Cắt mài móng & nhuộm lông nghệ thuật', price: 160000, duration: '45 phút' },
+    ],
+    description: 'Kết hợp khám chữa bệnh thú y chuyên sâu và dịch vụ spa làm đẹp chất lượng cao cho mèo & chó.',
+    verified: true,
+  },
+  {
+    id: 'spa-3',
+    name: 'Mèo Ú Spa & Cat Hotel Cầu Giấy',
+    city: 'hanoi',
+    address: '68 Trần Thái Tông, Cầu Giấy, Hà Nội',
+    phone: '0966 888 999',
+    lat: 21.0333,
+    lng: 105.7891,
+    rating: 4.7,
+    reviewCount: 164,
+    openTime: '09:00 - 19:30',
+    isOpen: true,
+    image: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=800&auto=format&fit=crop&q=80',
+    services: [
+      { name: 'Spa tắm khô & sấy tĩnh âm cho mèo nhát nước', price: 150000, duration: '45 phút' },
+      { name: 'Gỡ rối lông vón cục & cạo lông mát mùa hè', price: 200000, duration: '60 phút' },
+      { name: 'Phòng khách sạn VIP view kính riêng tư', price: 180000, duration: '1 đêm' },
+    ],
+    description: 'Không gian chuyên biệt cho các bé mèo, cách âm chống stress, điều hòa 24/7 và camera giám sát trực tiếp cho chủ nuôi.',
+    verified: true,
+  },
+  {
+    id: 'spa-4',
+    name: 'Pet Paradise Spa & Resort Sài Gòn',
+    city: 'hcm',
+    address: '250 Nguyễn Thị Minh Khai, Quận 3, TP. Hồ Chí Minh',
+    phone: '0903 112 233',
+    lat: 10.7769,
+    lng: 106.6908,
+    rating: 5.0,
+    reviewCount: 420,
+    openTime: '08:00 - 21:00',
+    isOpen: true,
+    image: 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=800&auto=format&fit=crop&q=80',
+    services: [
+      { name: 'Tắm khoáng sủi bọt phục hồi nang lông', price: 250000, duration: '60 phút' },
+      { name: 'Tạo kiểu phong cách Hàn Quốc/Nhật Bản', price: 350000, duration: '90 phút' },
+      { name: 'Hồ bơi tập bơi thể lực cho cún', price: 150000, duration: '45 phút' },
+    ],
+    description: 'Resort nghỉ dưỡng và spa làm đẹp chuẩn quốc tế tại trung tâm TP.HCM, có khu vực hồ bơi nước ấm chuyên dụng.',
+    verified: true,
+  },
+  {
+    id: 'spa-5',
+    name: 'Happy Paws Grooming Thảo Điền',
+    city: 'hcm',
+    address: '15 Quốc Hương, Thảo Điền, TP. Thủ Đức, TP.HCM',
+    phone: '0938 777 666',
+    lat: 10.8035,
+    lng: 106.7329,
+    rating: 4.8,
+    reviewCount: 189,
+    openTime: '08:30 - 20:00',
+    isOpen: true,
+    image: 'https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?w=800&auto=format&fit=crop&q=80',
+    services: [
+      { name: 'Full Grooming cắt tỉa & sấy dưỡng', price: 280000, duration: '75 phút' },
+      { name: 'Tẩy ố vàng lông vùng mắt', price: 90000, duration: '20 phút' },
+      { name: 'Đưa đón thú cưng tận nhà (Pet Taxi)', price: 100000, duration: 'chuyến' },
+    ],
+    description: 'Dịch vụ chuyên nghiệp phục vụ khách hàng trong nước và quốc tế tại Thảo Điền với xe đưa đón tận cửa.',
+    verified: true,
+  },
+  {
+    id: 'spa-6',
+    name: 'Đà Nẵng Pet Care & Spa Center',
+    city: 'danang',
+    address: '42 Bạch Đằng, Hải Châu, Đà Nẵng',
+    phone: '0905 999 111',
+    lat: 16.0683,
+    lng: 108.2241,
+    rating: 4.9,
+    reviewCount: 230,
+    openTime: '08:00 - 20:00',
+    isOpen: true,
+    image: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=800&auto=format&fit=crop&q=80',
+    services: [
+      { name: 'Combo vệ sinh toàn diện 7 bước', price: 160000, duration: '50 phút' },
+      { name: 'Cắt tỉa gọn gàng lông bàn chân, bụng, hậu môn', price: 120000, duration: '30 phút' },
+      { name: 'Tắm trị ve rận nấm da thảo dược', price: 190000, duration: '60 phút' },
+    ],
+    description: 'Địa chỉ chăm sóc thú cưng uy tín nhất bờ sông Hàn Đà Nẵng, sử dụng 100% mỹ phẩm nhập khẩu không gây dị ứng.',
+    verified: true,
+  },
+];
+
+export const INITIAL_BLOGS = [
+  {
+    id: 'blog-1',
+    title: 'Top 7 Dấu Hiệu Nhận Biết Thú Cưng Của Bạn Bị Dị Ứng Da Và Cách Xử Lý',
+    excerpt: 'Ngứa ngáy, gãi liên tục, rụng lông từng mảng là những biểu hiện thường thấy khi thời tiết giao mùa...',
+    category: 'Sức Khỏe',
+    readTime: '5 phút đọc',
+    date: '28/10/2026',
+    author: 'BS. Nguyễn Văn Hùng',
+    image: 'https://images.unsplash.com/photo-1548767797-d8c844163c4c?w=800&auto=format&fit=crop&q=80',
+    content: `
+      Dị ứng da ở chó mèo là một trong những bệnh lý da liễu phổ biến nhất, đặc biệt là khi khí hậu chuyển mùa ẩm thấp.
+      
+      ### 1. Dấu hiệu điển hình:
+      - Bé liên tục liếm láp bàn chân hoặc cọ xát mặt vào thảm/ghế sofa.
+      - Da xuất hiện các nốt đỏ, mảng bong tróc vảy gàu hoặc rụng lông hình tròn.
+      - Tai có mùi hôi hoặc tiết dịch màu nâu đậm.
+
+      ### 2. Nguyên nhân chính:
+      - **Dị ứng thức ăn**: Đạm thịt bò hoặc ngũ cốc không phù hợp.
+      - **Ký sinh trùng**: Nước bọt của bọ chét, ve rận cắn gây viêm da dị ứng cấp tính.
+      - **Thời tiết & môi trường**: Bụi bẩn, phấn hoa, xà phòng tẩy sàn nhà độc hại.
+
+      ### 3. Hướng dẫn chăm sóc tại nhà:
+      - Tắm bằng sữa tắm chuyên dụng dịu nhẹ chứa yến mạch hoặc trà xanh.
+      - Không tự ý bôi thuốc corticoid của người lên da bé.
+      - Vệ sinh sạch chuồng trại và đưa đến phòng khám thú y gần nhất trên Petosory Map để soi nấm nếu tình trạng kéo dài!
+    `,
+  },
+  {
+    id: 'blog-2',
+    title: 'Cẩm Nang Chọn Thức Ăn Hạt Đầy Đủ Dinh Dưỡng Cho Mèo Mọi Lứa Tuổi',
+    excerpt: 'Thành phần đạm thô bao nhiêu là chuẩn? Có nên chọn hạt không ngũ cốc (Grain-Free) hay không?...',
+    category: 'Dinh Dưỡng',
+    readTime: '6 phút đọc',
+    date: '24/10/2026',
+    author: 'ThS. Hoàng Thu Thảo',
+    image: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=800&auto=format&fit=crop&q=80',
+    content: `
+      Mèo là loài động vật ăn thịt bắt buộc (Obligate Carnivores). Điều này có nghĩa là cấu trúc cơ thể của mèo cần một lượng protein động vật rất cao để duy trì sức khỏe.
+
+      ### 1. Đọc bảng thành phần dinh dưỡng (Guaranteed Analysis):
+      - Hãy chắc chắn rằng thành phần đầu tiên ghi trên bao bì là **thịt thật** (ví dụ: Thịt gà rút xương, thịt cá hồi tươi) chứ không phải là bột ngô hay sản phẩm phụ gia.
+      - Hàm lượng Protein thô (Crude Protein) tối thiểu nên đạt từ 32% trở lên đối với mèo trưởng thành.
+      - Taurine là axit amin thiết yếu mà cơ thể mèo không tự tổng hợp được, giúp mắt sáng và tim khỏe mạnh.
+
+      ### 2. Kết hợp thức ăn khô và thức ăn ướt:
+      - Thức ăn khô (hạt) giúp giảm mảng bám trên răng.
+      - Nên bổ sung thêm Pate hoặc nước luộc ức gà để phòng ngừa sỏi thận và bệnh đường tiết niệu - căn bệnh rất nguy hiểm ở mèo.
+    `,
+  },
+  {
+    id: 'blog-3',
+    title: 'Bí Quyết Giúp Cún Cưng Hợp Tác Khi Cắt Móng & Tắm Tại Nhà',
+    excerpt: 'Làm thế nào để giờ tắm không còn là cuộc chiến vật lộn đẫm nước mắt giữa bạn và cún yêu?...',
+    category: 'Huấn Luyện',
+    readTime: '4 phút đọc',
+    date: '19/10/2026',
+    author: 'Groomer Minh Tuấn',
+    image: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=800&auto=format&fit=crop&q=80',
+    content: `
+      Nhiều bé cún hoảng loạn khi nghe tiếng bấm móng hoặc tiếng máy sấy lông. Đây là kỹ thuật làm quen bằng phương pháp củng cố tích cực:
+      
+      - **Bước 1**: Đặt kìm cắt móng cạnh chén thức ăn hoặc bánh thưởng trong vài ngày để bé thấy kìm không gây nguy hiểm.
+      - **Bước 2**: Chạm nhẹ kìm vào móng chân bé, sau đó thưởng ngay 1 viên bánh pate.
+      - **Bước 3**: Chỉ cắt 1 đến 2 móng mỗi lần khi bé đang bình tĩnh. Tránh cắt sâu vào mạch máu tủy (phần màu hồng).
+      - Nếu bạn quá bận rộn, hãy đặt lịch spa chuyên nghiệp để các kỹ thuật viên chăm sóc bé với dụng cụ mài móng tĩnh âm chuyên biệt!
+    `,
+  },
+];
+
+export const INITIAL_ORDERS = [
+  {
+    id: 'ORD-8921',
+    orderDate: '29/10/2026 14:30',
+    status: 'SHIPPING',
+    totalAmount: 434000,
+    shippingFee: 25000,
+    discountAmount: 20000,
+    receiver: {
+      fullName: 'Nguyễn Thị Hương',
+      phone: '0912 345 678',
+      address: 'Số 15, Ngõ 91 Nguyễn Chí Thanh, P. Láng Hạ, Q. Đống Đa, Hà Nội',
+      note: 'Giao giờ hành chính, gọi trước 15 phút',
+    },
+    paymentMethod: 'COD',
+    paymentStatus: 'Chưa thanh toán (Thanh toán khi nhận hàng)',
+    timeline: [
+      { status: 'Đặt hàng thành công', time: '29/10/2026 14:30', done: true },
+      { status: 'Cửa hàng đã xác nhận', time: '29/10/2026 15:10', done: true },
+      { status: 'Đang vận chuyển', time: '30/10/2026 09:00', done: true },
+      { status: 'Giao hàng thành công', time: 'Dự kiến hôm nay', done: false },
+    ],
+    items: [
+      {
+        id: 'prod-1',
+        name: 'Thức ăn hạt Royal Canin Mini Puppy cho chó con',
+        price: 385000,
+        quantity: 1,
+        image: 'https://images.unsplash.com/photo-1589924691995-400dc9ecc119?w=600&auto=format&fit=crop&q=80',
+      },
+      {
+        id: 'prod-2',
+        name: 'Pate Me-O vị cá hồi thơm ngon cho mèo',
+        price: 22000,
+        quantity: 2,
+        image: 'https://images.unsplash.com/photo-1548767797-d8c844163c4c?w=600&auto=format&fit=crop&q=80',
+      },
+    ],
+  },
+  {
+    id: 'ORD-8704',
+    orderDate: '20/10/2026 10:15',
+    status: 'DELIVERED',
+    totalAmount: 675000,
+    shippingFee: 25000,
+    discountAmount: 0,
+    receiver: {
+      fullName: 'Nguyễn Thị Hương',
+      phone: '0912 345 678',
+      address: 'Số 15, Ngõ 91 Nguyễn Chí Thanh, P. Láng Hạ, Q. Đống Đa, Hà Nội',
+      note: 'Nhà có chuông cửa',
+    },
+    paymentMethod: 'VNPAY',
+    paymentStatus: 'Đã thanh toán Online',
+    timeline: [
+      { status: 'Đặt hàng thành công', time: '20/10/2026 10:15', done: true },
+      { status: 'Xác nhận đơn hàng', time: '20/10/2026 10:30', done: true },
+      { status: 'Đang giao hàng', time: '21/10/2026 08:30', done: true },
+      { status: 'Đã giao thành công', time: '21/10/2026 16:45', done: true },
+    ],
+    isReviewed: true,
+    feedback: {
+      rating: 5,
+      comment: 'Cây cào móng rất chắc chắn, hai bé mèo nhà mình mê tít luôn!',
+      date: '22/10/2026',
+    },
+    items: [
+      {
+        id: 'prod-3',
+        name: 'Cây cào móng tích hợp nhà cây Cat Tree cao cấp 3 tầng',
+        price: 650000,
+        quantity: 1,
+        image: 'https://images.unsplash.com/photo-1545249390-6bdfa286032f?w=600&auto=format&fit=crop&q=80',
+      },
+    ],
+  },
+  {
+    id: 'ORD-8512',
+    orderDate: '12/10/2026 18:20',
+    status: 'PENDING',
+    totalAmount: 170000,
+    shippingFee: 25000,
+    discountAmount: 0,
+    receiver: {
+      fullName: 'Nguyễn Thị Hương',
+      phone: '0912 345 678',
+      address: 'Số 15, Ngõ 91 Nguyễn Chí Thanh, P. Láng Hạ, Q. Đống Đa, Hà Nội',
+      note: 'Giao buổi chiều',
+    },
+    paymentMethod: 'COD',
+    paymentStatus: 'Chưa thanh toán',
+    timeline: [
+      { status: 'Đặt hàng thành công', time: '12/10/2026 18:20', done: true },
+      { status: 'Chờ xác nhận từ cửa hàng', time: 'Đang xử lý', done: false },
+    ],
+    items: [
+      {
+        id: 'prod-4',
+        name: 'Sữa tắm SOS chuyên dụng làm mềm mượt lông chó mèo',
+        price: 145000,
+        quantity: 1,
+        image: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=600&auto=format&fit=crop&q=80',
+      },
+    ],
+  },
+];
+
+export const INITIAL_USER = {
+  id: 'usr-101',
+  email: 'customer@petosory.vn',
+  fullName: 'Nguyễn Thị Hương',
+  phone: '0912 345 678',
+  address: 'Số 15, Ngõ 91 Nguyễn Chí Thanh, P. Láng Hạ, Q. Đống Đa, Hà Nội',
+  role: ROLES.CUSTOMER,
+  avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&auto=format&fit=crop&q=80',
+  pets: [
+    {
+      id: 'pet-1',
+      name: 'Mochi',
+      type: 'cat',
+      breed: 'Mèo Anh Lông Ngắn',
+      age: '1.5 tuổi',
+      weight: '4.2 kg',
+      gender: 'Cái',
+      avatar: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=200&auto=format&fit=crop&q=80',
+    },
+    {
+      id: 'pet-2',
+      name: 'Lucky',
+      type: 'dog',
+      breed: 'Corgi Pembroke',
+      age: '8 tháng',
+      weight: '8.5 kg',
+      gender: 'Đực',
+      avatar: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=200&auto=format&fit=crop&q=80',
+    },
+  ],
+};
+
