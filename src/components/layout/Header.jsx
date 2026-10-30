@@ -125,20 +125,15 @@ export const Header = () => {
           </div>
 
           <button
+            type="button"
             onClick={toggleTheme}
-            className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold cursor-pointer transition-colors"
+            className="p-1.5 rounded-full bg-slate-800 hover:bg-slate-700 border border-slate-700 cursor-pointer transition-all flex items-center justify-center hover:scale-110 active:scale-95 ml-1"
             title={theme === 'dark' ? 'Chuyển sang chế độ Sáng' : 'Chuyển sang chế độ Tối'}
           >
             {theme === 'dark' ? (
-              <>
-                <Sun className="w-3.5 h-3.5 text-amber-400" />
-                <span className="text-[11px] text-amber-300 font-bold">Giao diện: Tối</span>
-              </>
+              <Sun className="w-4 h-4 text-amber-400 fill-amber-400" />
             ) : (
-              <>
-                <Moon className="w-3.5 h-3.5 text-sky-300" />
-                <span className="text-[11px] text-slate-300 font-bold">Giao diện: Sáng</span>
-              </>
+              <Moon className="w-4 h-4 text-sky-300" />
             )}
           </button>
         </div>
@@ -216,19 +211,13 @@ export const Header = () => {
             <button
               type="button"
               onClick={toggleTheme}
-              className="p-2 sm:px-3 sm:py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-amber-400 hover:bg-orange-50 dark:hover:bg-slate-700 cursor-pointer transition-all flex items-center gap-1.5 shadow-xs"
-              title={theme === 'dark' ? 'Đang là chế độ Tối (Bấm để chuyển Sáng)' : 'Đang là chế độ Sáng (Bấm để chuyển Tối)'}
+              className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-amber-400 hover:bg-orange-50 dark:hover:bg-slate-700 cursor-pointer transition-all flex items-center justify-center shadow-xs hover:scale-105 active:scale-95"
+              title={theme === 'dark' ? 'Chuyển sang chế độ Sáng' : 'Chuyển sang chế độ Tối'}
             >
               {theme === 'dark' ? (
-                <>
-                  <Sun className="w-4 h-4 text-amber-400 fill-amber-400" />
-                  <span className="hidden sm:inline text-xs font-bold text-amber-400">Tối</span>
-                </>
+                <Sun className="w-5 h-5 text-amber-400 fill-amber-400" />
               ) : (
-                <>
-                  <Moon className="w-4 h-4 text-slate-600" />
-                  <span className="hidden sm:inline text-xs font-bold text-slate-600">Sáng</span>
-                </>
+                <Moon className="w-5 h-5 text-slate-600" />
               )}
             </button>
 
