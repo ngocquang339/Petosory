@@ -64,9 +64,14 @@ html.dark ::-webkit-scrollbar-thumb {
   z-index: 1;
 }
 
-/* Dark mode filter applied ONLY to the map tiles pane */
+/* Ensure tile pane has z-index 200 and no dark overlay covers it */
 .leaflet-tile-pane {
-  filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+  z-index: 200 !important;
+}
+
+/* Dark mode filter applied directly to leaflet tiles */
+.leaflet-tile {
+  filter: invert(90%) hue-rotate(180deg) brightness(95%) contrast(90%);
 }
 
 /* Leaflet ZoomControl styling in bottomright */

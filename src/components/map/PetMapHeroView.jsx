@@ -250,7 +250,7 @@ export const PetMapHeroView = () => {
       </div>
 
       {/* RIGHT MAP (Matches dark interactive map of screenshot) */}
-      <div className="flex-1 h-full relative">
+      <div className="flex-1 h-full min-h-[550px] w-full relative">
         <Map
           center={[userCoords.lat, userCoords.lng]}
           zoom={14}
@@ -261,7 +261,7 @@ export const PetMapHeroView = () => {
           userLocation={userCoords}
           radiusKm={selectedRadius}
           onRefreshArea={handleRefreshArea}
-          className="w-full h-full"
+          className="w-full h-full min-h-[550px]"
         />
       </div>
 

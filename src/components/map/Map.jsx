@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import 'leaflet/dist/leaflet.css';
 import {
   MapContainer,
   TileLayer,
@@ -11,14 +12,24 @@ import PetMarker from './Marker';
 import { userLocationIcon } from '../../utils/maps';
 import { RefreshCw, Flame } from 'lucide-react';
 
-// Subcomponent to trigger flyTo on center changes
-const MapRecenter = ({ center, zoom }) => {
+// Subcomponent to trigger flyTo on center changes and invalidateSize on mount
+const MapController = ({ center, zoom }) => {
   const map = useLeafletMap();
+
+  useEffect(() => {
+    // Invalidate size on mount to ensure tiles load in flex layout
+    const timer = setTimeout(() => {
+      map.invalidateSize();
+    }, 150);
+    return () => clearTimeout(timer);
+  }, [map]);
+
   useEffect(() => {
     if (center && center[0] && center[1]) {
       map.flyTo(center, zoom, { duration: 1.0 });
     }
   }, [center, zoom, map]);
+
   return null;
 };
 
@@ -32,28 +43,29 @@ export const Map = ({
   userLocation = { lat: 21.018, lng: 105.824 },
   radiusKm = 3,
   onRefreshArea,
-  className = 'h-full w-full',
+  className = 'h-[550px] min-h-[500px] w-full',
 }) => {
   const activeCenter = selectedSpa
     ? [selectedSpa.lat, selectedSpa.lng]
     : [userLocation.lat, userLocation.lng];
 
   return (
-    <div className={`relative ${className} overflow-hidden bg-[#090d16]`}>
+    <div className={`relative ${className} min-h-[500px] w-full overflow-hidden`}>
       <MapContainer
+        key="pet-map-google"
         center={activeCenter}
         zoom={zoom}
         scrollWheelZoom={true}
         zoomControl={false}
-        style={{ height: '100%', width: '100%', backgroundColor: '#090d16' }}
+        style={{ height: '100%', minHeight: '500px', width: '100%' }}
       >
-        <MapRecenter center={activeCenter} zoom={zoom} />
+        <MapController center={activeCenter} zoom={zoom} />
 
-        {/* 1. Free OpenStreetMap tile layer - No API Key required */}
+        {/* 2. Direct Google Maps Tile layer (No API Key required) */}
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          maxZoom={19}
+          attribution='&copy; Google Maps'
+          url="https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}"
+          maxZoom={20}
         />
 
         {/* 3. Zoom buttons relocated to bottomright */}
