@@ -42,7 +42,7 @@ export const Map = ({
   onSelectSpa,
   onBookSpa,
   userLocation = { lat: 21.0182, lng: 105.8245 },
-  radiusMeters = 650,
+  radiusMeters = 420,
   onRefreshArea,
   onLocateUser,
   isLocating = false,
@@ -51,9 +51,8 @@ export const Map = ({
   const themeCtx = useThemeContext();
   const isDark = themeCtx ? themeCtx.isDark : true;
 
-  const activeCenter = selectedSpa
-    ? [selectedSpa.lat, selectedSpa.lng]
-    : [userLocation.lat, userLocation.lng];
+  // Bắt buộc đặt tọa độ của Chấm xanh, Tâm vòng tròn cam, và center của MapContainer tại cùng [21.0182, 105.8245]
+  const mapCenter = [userLocation.lat, userLocation.lng];
 
   return (
     <div
@@ -61,31 +60,9 @@ export const Map = ({
         isDark ? 'dark-map' : ''
       }`}
     >
-      {/* 1. THÊM BỘ LỌC SVG VÀO TRONG COMPONENT BẢN ĐỒ */}
-      <svg width="0" height="0" style={{ position: 'absolute', pointerEvents: 'none' }} aria-hidden="true">
-        <defs>
-          <filter id="petosory-dark-navy" colorInterpolationFilters="sRGB">
-            {/* Tách độ sáng giữa Nước (thấp) - Đất (trung bình) - Đường trắng & vàng (cao) */}
-            <feColorMatrix
-              type="matrix"
-              values="1.3  0   -0.3  0  0
-                      1.3  0   -0.3  0  0
-                      1.3  0   -0.3  0  0
-                      0    0    0    1  0"
-            />
-            {/* Ánh xạ từng vùng sáng sang đúng bảng màu: Hồ tối sẫm (#0d1522), Đất xanh tối (#212e42), Đường xám (#4f5d73) */}
-            <feComponentTransfer>
-              <feFuncR type="table" tableValues="0.55 0.52 0.48 0.42 0.35 0.25 0.15 0.08 0.05 0.05 0.05 0.05 0.05 0.06 0.08 0.10 0.11 0.12 0.12 0.13 0.31" />
-              <feFuncG type="table" tableValues="0.62 0.58 0.54 0.48 0.40 0.30 0.20 0.12 0.08 0.08 0.08 0.08 0.08 0.09 0.12 0.14 0.15 0.16 0.17 0.18 0.36" />
-              <feFuncB type="table" tableValues="0.72 0.68 0.64 0.58 0.50 0.38 0.28 0.18 0.13 0.13 0.13 0.13 0.13 0.15 0.18 0.21 0.22 0.24 0.25 0.26 0.45" />
-            </feComponentTransfer>
-          </filter>
-        </defs>
-      </svg>
-
-      {/* 2. CẬP NHẬT LẠI CSS CHO CHẾ ĐỘ SÁNG VÀ CHẾ ĐỘ TỐI */}
+      {/* 2. CHỈNH TÔNG MÀU XANH NAVY MƯỢT MÀ CHO BẢN ĐỒ TỐI (KHÔNG DÙNG INVERT) */}
       <style>{`
-        /* Chế độ Sáng (Light Mode) */
+        /* Chế độ Sáng */
         .leaflet-container {
           background-color: #f8fafc !important;
         }
@@ -94,10 +71,10 @@ export const Map = ({
           filter: none !important;
         }
 
-        /* Chế độ Tối (Dark Mode) - Áp dụng bộ lọc SVG Dark Navy */
+        /* Chế độ Tối - Nhuộm ánh Xanh Navy nhẹ nhàng, giữ nguyên độ sắc nét của đường xá */
         .dark .leaflet-container,
         .dark-map .leaflet-container {
-          background-color: #1b2638 !important;
+          background-color: #162032 !important;
         }
         .dark .leaflet-container .leaflet-tile-pane,
         .dark-map .leaflet-container .leaflet-tile-pane {
@@ -105,46 +82,51 @@ export const Map = ({
         }
         .dark .leaflet-container .leaflet-tile,
         .dark-map .leaflet-container .leaflet-tile {
-          filter: url("#petosory-dark-navy") !important;
+          filter: sepia(35%) hue-rotate(180deg) saturate(190%) brightness(115%) contrast(105%) !important;
         }
       `}</style>
 
       <MapContainer
-        key="pet-map-google"
-        center={activeCenter}
+        key={`pet-map-${isDark ? 'dark' : 'light'}`}
+        center={mapCenter}
         zoom={zoom}
         scrollWheelZoom={true}
         zoomControl={false}
         style={{ height: '100%', minHeight: '500px', width: '100%' }}
       >
-        <MapController center={activeCenter} zoom={zoom} />
+        <MapController center={mapCenter} zoom={zoom} />
 
-        {/* 2. Direct Google Maps Tile layer (No API Key required) */}
+        {/* 1. Nguồn bản đồ Esri Dark Canvas (Dark) / Google Maps (Light) */}
         <TileLayer
-          attribution='&copy; Google Maps'
-          url="https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}"
+          key={isDark ? 'dark-tile' : 'light-tile'}
+          attribution={isDark ? '&copy; Esri &mdash; Esri, DeLorme, NAVTEQ' : '&copy; Google Maps'}
+          url={
+            isDark
+              ? 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}'
+              : 'https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}'
+          }
           maxZoom={20}
         />
 
         {/* 3. Zoom buttons relocated to bottomright */}
         <ZoomControl position="bottomright" />
 
-        {/* Radius circle around Hồ Hoàng Cầu / user location */}
+        {/* 3. Vòng tròn bán kính và Chấm xanh Vị trí của bạn (tâm chuẩn [21.0182, 105.8245], bán kính 420m) */}
         {userLocation && (
           <Circle
             center={[userLocation.lat, userLocation.lng]}
-            radius={radiusMeters || 650}
+            radius={radiusMeters || 420}
             pathOptions={{
               color: '#f59e0b',
-              fillColor: isDark ? '#452c1e' : '#fed7aa',
-              fillOpacity: isDark ? 0.28 : 0.25,
               weight: 1.5,
+              fillColor: '#78350f',
+              fillOpacity: 0.22,
               dashArray: undefined,
             }}
           />
         )}
 
-        {/* User GPS location pin */}
+        {/* User GPS location pin (chấm xanh nằm chính giữa tâm vòng tròn cam) */}
         {userLocation && (
           <LeafletMarker
             position={[userLocation.lat, userLocation.lng]}

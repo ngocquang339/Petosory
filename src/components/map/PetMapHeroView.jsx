@@ -348,7 +348,7 @@ export const PetMapHeroView = () => {
           onSelectSpa={setSelectedSpa}
           onBookSpa={setBookingSpa}
           userLocation={userCoords}
-          radiusMeters={650}
+          radiusMeters={420}
           onRefreshArea={handleRefreshArea}
           onLocateUser={handleLocateUser}
           isLocating={isLocating}
