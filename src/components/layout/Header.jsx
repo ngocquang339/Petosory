@@ -16,6 +16,7 @@ import {
   ShieldCheck,
   Moon,
   Sun,
+  Sparkles,
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useCart } from '../../hooks/useCart';
@@ -55,8 +56,8 @@ export const Header = () => {
       {/* Top micro bar for demo switch & location */}
       <div className="bg-slate-900 text-slate-300 text-xs px-4 py-1.5 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <span className="flex items-center gap-1 text-orange-400 font-medium">
-            <ShieldCheck className="w-3.5 h-3.5" /> Nền tảng dịch vụ thú cưng toàn diện Petosory
+          <span className="flex items-center gap-1.5 text-orange-400 font-medium">
+            <Sparkles className="w-3.5 h-3.5" /> PETOSORY-Nền tảng chăm sóc thú cưng One For All
           </span>
           <span className="hidden sm:inline text-slate-500">|</span>
           <div className="hidden sm:flex items-center gap-1.5">

@@ -60,7 +60,7 @@ export const Footer = () => {
               <span className="text-2xl font-black text-white tracking-tight">Petosory</span>
             </Link>
             <p className="text-xs sm:text-sm text-slate-400 leading-relaxed max-w-sm">
-              Hệ sinh thái nền tảng dịch vụ chăm sóc thú cưng toàn diện số 1 Việt Nam. Kết nối khách hàng, spa làm đẹp, phòng khám thú y và mua sắm thông minh.
+              PETOSORY - Nền tảng chăm sóc thú cưng One For All. Kết nối khách hàng, spa làm đẹp, phòng khám thú y và mua sắm thông minh.
             </p>
             <div className="space-y-2 text-xs text-slate-300">
               <div className="flex items-center gap-2">

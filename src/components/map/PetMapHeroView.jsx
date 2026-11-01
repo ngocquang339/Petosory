@@ -141,7 +141,15 @@ export const PetMapHeroView = () => {
       {/* LEFT PANEL (Responsive to Light & Dark Mode) */}
       <div className="w-full md:w-[440px] lg:w-[480px] h-full flex flex-col bg-white dark:bg-[#0d1526] border-r border-slate-200 dark:border-slate-800 z-10 shrink-0 transition-colors duration-200">
         {/* Top Header */}
-        <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 space-y-3.5 shrink-0 bg-white/95 dark:bg-[#0d1526]/95 backdrop-blur-md">
+        <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 space-y-3 shrink-0 bg-white/95 dark:bg-[#0d1526]/95 backdrop-blur-md">
+          {/* Brand Tagline Badge */}
+          <div>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-100 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400 text-xs font-bold tracking-wide shadow-xs">
+              <Sparkles className="w-3.5 h-3.5 text-orange-500 shrink-0" />
+              <span>PETOSORY-Nền tảng chăm sóc thú cưng One For All</span>
+            </div>
+          </div>
+
           {/* Title */}
           <div className="flex items-center gap-2">
             <span className="text-orange-500 text-xl font-bold">📍</span>
