@@ -15,39 +15,41 @@ export const defaultMarkerIcon = new L.Icon({
 
 export const createPetPinIcon = (isSelected = false) => {
   const bgColor = isSelected ? '#ea580c' : '#f97316';
-  const scale = isSelected ? 1.2 : 1.0;
+  const scale = isSelected ? 1.25 : 1.0;
 
   return L.divIcon({
     className: 'custom-pet-marker',
     html: `
       <div style="
-        transform: scale(${scale});
-        transform-origin: bottom center;
-        transition: all 0.2s ease;
+        position: relative;
+        width: 34px;
+        height: 44px;
         display: flex;
-        flex-direction: column;
         align-items: center;
+        justify-content: center;
+        filter: drop-shadow(0 3px 6px rgba(0,0,0,0.6));
+        transform: scale(${scale});
+        transition: transform 0.25s ease;
       ">
+        <svg width="34" height="44" viewBox="0 0 32 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16 0C7.163 0 0 7.163 0 16C0 26.5 16 42 16 42C16 42 32 26.5 32 16C32 7.163 24.837 0 16 0Z" fill="${bgColor}" stroke="#ffffff" stroke-width="1.8" />
+        </svg>
         <div style="
-          background: ${bgColor};
-          color: white;
-          width: 36px;
-          height: 36px;
-          border-radius: 50% 50% 50% 0;
-          transform: rotate(-45deg);
+          position: absolute;
+          top: 6px;
           display: flex;
           align-items: center;
           justify-content: center;
-          box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-          border: 2px solid white;
+          font-size: 15px;
+          line-height: 1;
         ">
-          <span style="transform: rotate(45deg); font-size: 16px;">🐾</span>
+          🐾
         </div>
       </div>
     `,
-    iconSize: [36, 36],
-    iconAnchor: [18, 36],
-    popupAnchor: [0, -36],
+    iconSize: [34, 44],
+    iconAnchor: [17, 44],
+    popupAnchor: [0, -44],
   });
 };
 
@@ -55,17 +57,33 @@ export const userLocationIcon = L.divIcon({
   className: 'user-location-marker',
   html: `
     <div style="
-      width: 22px;
-      height: 22px;
-      background: #0ea5e9;
-      border: 3px solid white;
-      border-radius: 50%;
-      box-shadow: 0 0 0 5px rgba(14, 165, 233, 0.35);
-      animation: pulse 2s infinite;
-    "></div>
+      position: relative;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    ">
+      <div style="
+        position: absolute;
+        width: 30px;
+        height: 30px;
+        background: rgba(14, 165, 233, 0.4);
+        border-radius: 50%;
+        animation: pulse 1.8s infinite;
+      "></div>
+      <div style="
+        width: 14px;
+        height: 14px;
+        background: #0ea5e9;
+        border: 2.5px solid #ffffff;
+        border-radius: 50%;
+        box-shadow: 0 0 10px rgba(14, 165, 233, 0.9);
+      "></div>
+    </div>
   `,
-  iconSize: [22, 22],
-  iconAnchor: [11, 11],
+  iconSize: [32, 32],
+  iconAnchor: [16, 16],
 });
 
 export const getCurrentPosition = () => {
@@ -81,4 +99,3 @@ export const getCurrentPosition = () => {
     );
   });
 };
-

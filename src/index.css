@@ -64,6 +64,27 @@ html.dark ::-webkit-scrollbar-thumb {
   z-index: 1;
 }
 
+/* Custom Leaflet dark popup */
+.petosory-dark-popup .leaflet-popup-content-wrapper {
+  background: rgba(15, 23, 42, 0.95) !important;
+  backdrop-filter: blur(8px);
+  color: #f8fafc !important;
+  border: 1px solid rgba(51, 65, 85, 0.8) !important;
+  border-radius: 1rem !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
+  padding: 4px !important;
+}
+.petosory-dark-popup .leaflet-popup-tip {
+  background: rgba(15, 23, 42, 0.95) !important;
+}
+.petosory-dark-popup a.leaflet-popup-close-button {
+  color: #94a3b8 !important;
+  padding: 8px !important;
+}
+.petosory-dark-popup a.leaflet-popup-close-button:hover {
+  color: #f8fafc !important;
+}
+
 /* Dark mode leaflet tiles adjustment */
 html.dark .leaflet-tile {
   filter: brightness(0.85) invert(1) contrast(3) hue-rotate(200deg) saturate(0.35);
