@@ -12,10 +12,13 @@ import {
   Flame,
   CheckCircle2,
   Gift,
+  AlertCircle,
+  Loader2,
 } from 'lucide-react';
 import Map from './Map';
 import BookingModal from '../spa/BookingModal';
 import { INITIAL_SPAS } from '../../utils/constants';
+import { calculateDistanceNum } from '../../utils/helpers';
 
 export const PetMapHeroView = () => {
   // Filters matching screenshot dropdowns
@@ -29,12 +32,78 @@ export const PetMapHeroView = () => {
   const [selectedSpa, setSelectedSpa] = useState(INITIAL_SPAS[0]); // Default selected: Petosory Flagship Spa
   const [bookingSpa, setBookingSpa] = useState(null);
 
-  // User location (Hoàng Cầu, Đống Đa, Hà Nội: [21.018, 105.824])
-  const userCoords = { lat: 21.018, lng: 105.824 };
+  // User location state (defaults to Hoàng Cầu, Đống Đa, Hà Nội: [21.018, 105.824])
+  const [userCoords, setUserCoords] = useState({ lat: 21.018, lng: 105.824 });
+  const [isLocating, setIsLocating] = useState(false);
+  const [locationNotice, setLocationNotice] = useState(null);
+
+  // Request browser geolocation
+  const handleLocateUser = () => {
+    if (!navigator.geolocation) {
+      alert('Trình duyệt của bạn không hỗ trợ chức năng định vị GPS.');
+      return;
+    }
+
+    setIsLocating(true);
+    setLocationNotice({
+      type: 'info',
+      message: 'Trình duyệt đang gửi yêu cầu lấy vị trí, bạn hãy bấm "Cho phép" (Allow) trên cửa sổ thông báo nhé...',
+    });
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        const newCoords = { lat: latitude, lng: longitude };
+        setUserCoords(newCoords);
+        setSelectedSpa(null); // Unselect spa so map flies and centers directly on user's current location!
+        setIsLocating(false);
+        setLocationNotice({
+          type: 'success',
+          message: `Đã định vị thành công vị trí của bạn [${latitude.toFixed(4)}, ${longitude.toFixed(4)}]!`,
+        });
+
+        // Hide notice after 4.5s
+        setTimeout(() => setLocationNotice(null), 4500);
+      },
+      (error) => {
+        setIsLocating(false);
+        let errorMsg = 'Không thể lấy được vị trí của bạn.';
+        if (error.code === error.PERMISSION_DENIED) {
+          errorMsg = 'Bạn đã từ chối quyền truy cập vị trí. Hãy bấm vào biểu tượng ổ khóa 🔒 trên thanh địa chỉ để cấp quyền vị trí cho trang web nhé!';
+        } else if (error.code === error.POSITION_UNAVAILABLE) {
+          errorMsg = 'Thiết bị không xác định được tọa độ GPS hiện tại.';
+        } else if (error.code === error.TIMEOUT) {
+          errorMsg = 'Quá thời gian chờ phản hồi GPS từ trình duyệt.';
+        }
+        setLocationNotice({ type: 'error', message: errorMsg });
+        setTimeout(() => setLocationNotice(null), 6000);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      }
+    );
+  };
+
+  // Dynamically compute distances from current userCoords
+  const spasWithDistance = useMemo(() => {
+    return spas.map((spa) => {
+      if (spa.lat && spa.lng && userCoords.lat && userCoords.lng) {
+        const d = calculateDistanceNum(userCoords.lat, userCoords.lng, spa.lat, spa.lng);
+        return {
+          ...spa,
+          distanceNum: d,
+          distanceText: d < 1 ? `Cách ${Math.round(d * 1000)}m` : `Cách ${d.toFixed(1)}km`,
+        };
+      }
+      return spa;
+    }).sort((a, b) => (a.distanceNum || 0) - (b.distanceNum || 0));
+  }, [spas, userCoords]);
 
   // Filter spas by radius and service
   const filteredSpas = useMemo(() => {
-    return spas.filter((spa) => {
+    return spasWithDistance.filter((spa) => {
       // Radius filter
       if (spa.distanceNum && spa.distanceNum > selectedRadius) {
         return false;
@@ -60,10 +129,10 @@ export const PetMapHeroView = () => {
       }
       return true;
     });
-  }, [spas, selectedRadius, selectedService]);
+  }, [spasWithDistance, selectedRadius, selectedService]);
 
   const handleRefreshArea = () => {
-    // Re-center and reset selected
+    // Re-center on the first available spa or reset to userCoords
     setSelectedSpa(filteredSpas[0] || null);
   };
 
@@ -134,9 +203,31 @@ export const PetMapHeroView = () => {
         {/* List of Spa Cards (Scrollable) */}
         <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-thin">
           {filteredSpas.length === 0 ? (
-            <div className="text-center py-12 text-slate-400 text-xs">
-              <span className="text-3xl block mb-2">🔍</span>
-              Không có Spa nào trong bán kính {selectedRadius}km. Hãy thử chọn bán kính 5km hoặc 10km!
+            <div className="text-center py-10 px-4 text-slate-400 text-xs space-y-3 bg-[#111827]/60 rounded-2xl border border-slate-800">
+              <span className="text-3xl block">🔍</span>
+              <p className="font-medium text-slate-300">
+                Không có Spa nào trong bán kính <span className="text-orange-400 font-bold">{selectedRadius}km</span> từ vị trí hiện tại của bạn.
+              </p>
+              <div className="flex flex-col gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setSelectedRadius(10)}
+                  className="px-3.5 py-1.5 rounded-xl bg-orange-500/20 hover:bg-orange-500/30 text-orange-400 border border-orange-500/40 text-[11px] font-bold transition-all cursor-pointer"
+                >
+                  Mở rộng bán kính lên 10km
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setUserCoords({ lat: 21.018, lng: 105.824 });
+                    setSelectedDistrict('Đống Đa, Hà Nội');
+                    setSelectedSpa(INITIAL_SPAS[0]);
+                  }}
+                  className="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-[11px] font-medium transition-all cursor-pointer"
+                >
+                  Quay lại trung tâm Đống Đa, Hà Nội
+                </button>
+              </div>
             </div>
           ) : (
             filteredSpas.map((spa) => {
@@ -261,8 +352,45 @@ export const PetMapHeroView = () => {
           userLocation={userCoords}
           radiusKm={selectedRadius}
           onRefreshArea={handleRefreshArea}
+          onLocateUser={handleLocateUser}
+          isLocating={isLocating}
           className="w-full h-full min-h-[550px]"
         />
+
+        {/* Floating Notification for Location Request / Status */}
+        {locationNotice && (
+          <div className="absolute top-16 left-4 z-[1001] max-w-sm animate-scale-up pointer-events-auto">
+            <div
+              className={`px-3.5 py-2.5 rounded-2xl text-xs font-semibold backdrop-blur-md shadow-2xl border flex items-center justify-between gap-2.5 ${
+                locationNotice.type === 'success'
+                  ? 'bg-emerald-950/90 border-emerald-500/60 text-emerald-200 shadow-emerald-950/50'
+                  : locationNotice.type === 'error'
+                  ? 'bg-rose-950/90 border-rose-500/60 text-rose-200 shadow-rose-950/50'
+                  : 'bg-sky-950/90 border-sky-500/60 text-sky-200 shadow-sky-950/50'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                {locationNotice.type === 'info' && (
+                  <span className="w-2 h-2 rounded-full bg-sky-400 animate-ping shrink-0" />
+                )}
+                {locationNotice.type === 'success' && (
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                )}
+                {locationNotice.type === 'error' && (
+                  <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+                )}
+                <span className="leading-snug">{locationNotice.message}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setLocationNotice(null)}
+                className="opacity-70 hover:opacity-100 p-0.5 text-xs text-slate-300 hover:text-white shrink-0 cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Booking Modal */}

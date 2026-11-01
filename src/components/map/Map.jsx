@@ -43,6 +43,8 @@ export const Map = ({
   userLocation = { lat: 21.018, lng: 105.824 },
   radiusKm = 3,
   onRefreshArea,
+  onLocateUser,
+  isLocating = false,
   className = 'h-[550px] min-h-[500px] w-full',
 }) => {
   const activeCenter = selectedSpa
@@ -108,12 +110,26 @@ export const Map = ({
 
       {/* Floating Badges & Controls Overlay (exact match to screenshot) */}
       
-      {/* Top Left Legend: "Vị trí của bạn" (Not covered by zoom control anymore) */}
-      <div className="absolute top-4 left-4 z-[1000] pointer-events-none">
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/90 backdrop-blur-md border border-slate-700/70 text-white text-xs font-semibold shadow-lg">
-          <span className="w-2.5 h-2.5 rounded-full bg-sky-400 shadow-sm shadow-sky-400/80 animate-pulse"></span>
-          <span>Vị trí của bạn</span>
-        </div>
+      {/* Top Left Button: "Vị trí của bạn" (Clickable to request user GPS location) */}
+      <div className="absolute top-4 left-4 z-[1000] pointer-events-auto">
+        <button
+          type="button"
+          onClick={onLocateUser}
+          disabled={isLocating}
+          title="Nhấn để định vị vị trí hiện tại của bạn"
+          className="group flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/90 hover:bg-slate-800 active:scale-95 backdrop-blur-md border border-slate-700/80 hover:border-sky-400 text-white text-xs font-semibold shadow-lg transition-all cursor-pointer disabled:opacity-80 disabled:cursor-wait"
+        >
+          <span
+            className={`w-2.5 h-2.5 rounded-full transition-all ${
+              isLocating
+                ? 'bg-amber-400 animate-ping'
+                : 'bg-sky-400 shadow-sm shadow-sky-400/80 animate-pulse group-hover:scale-125'
+            }`}
+          />
+          <span className="select-none">
+            {isLocating ? 'Đang lấy vị trí...' : 'Vị trí của bạn'}
+          </span>
+        </button>
       </div>
 
       {/* Top Center Button: "Tìm kiếm lại khu vực này" */}
