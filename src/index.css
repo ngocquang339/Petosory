@@ -61,6 +61,7 @@ html.dark ::-webkit-scrollbar-thumb {
   width: 100%;
   height: 100%;
   border-radius: 0.75rem;
+  background-color: #0b1320 !important;
   z-index: 1;
 }
 
@@ -69,22 +70,12 @@ html.dark ::-webkit-scrollbar-thumb {
   z-index: 200 !important;
 }
 
-/* Dark mode filter applied ONLY when html has class .dark or data-theme="dark" */
-html.dark .leaflet-tile-pane,
-html.dark .leaflet-tile,
-[data-theme="dark"] .leaflet-tile-pane,
-[data-theme="dark"] .leaflet-tile {
-  filter: invert(90%) hue-rotate(180deg) brightness(95%) contrast(90%) !important;
-  -webkit-filter: invert(90%) hue-rotate(180deg) brightness(95%) contrast(90%) !important;
-}
-
-/* Light mode - normal clean Google Maps tiles */
-html:not(.dark) .leaflet-tile-pane,
-html:not(.dark) .leaflet-tile,
-[data-theme="light"] .leaflet-tile-pane,
-[data-theme="light"] .leaflet-tile {
-  filter: none !important;
-  -webkit-filter: none !important;
+/* 1. ÉP MÀU BẢN ĐỒ SANG DARK NAVY BẰNG CSS FILTER (BẮT BUỘC) */
+.leaflet-container .leaflet-tile-pane,
+.leaflet-container .leaflet-tile,
+.leaflet-tile {
+  filter: invert(100%) hue-rotate(195deg) saturate(30%) brightness(75%) contrast(125%) !important;
+  -webkit-filter: invert(100%) hue-rotate(195deg) saturate(30%) brightness(75%) contrast(125%) !important;
 }
 
 /* Leaflet ZoomControl styling in Dark Mode */

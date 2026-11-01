@@ -35,34 +35,34 @@ const MapController = ({ center, zoom }) => {
 };
 
 export const Map = ({
-  center = [21.018, 105.824],
-  zoom = 14,
+  center = [21.0182, 105.8245],
+  zoom = 15,
   spas = [],
   selectedSpa,
   onSelectSpa,
   onBookSpa,
-  userLocation = { lat: 21.018, lng: 105.824 },
-  radiusKm = 3,
+  userLocation = { lat: 21.0182, lng: 105.8245 },
+  radiusMeters = 650,
   onRefreshArea,
   onLocateUser,
   isLocating = false,
   className = 'h-[550px] min-h-[500px] w-full',
 }) => {
-  const themeCtx = useThemeContext();
-  const isDark = themeCtx ? themeCtx.isDark : true;
-
   const activeCenter = selectedSpa
     ? [selectedSpa.lat, selectedSpa.lng]
     : [userLocation.lat, userLocation.lng];
 
   return (
-    <div className={`relative ${className} min-h-[500px] w-full overflow-hidden bg-slate-100 dark:bg-[#090d16] transition-colors duration-200`}>
-      {/* Dynamic tile-pane styling that reacts directly to isDark state */}
+    <div className={`relative ${className} min-h-[500px] w-full overflow-hidden bg-[#0b1320]`}>
+      {/* 1. ÉP MÀU BẢN ĐỒ SANG DARK NAVY BẰNG CSS FILTER (BẮT BUỘC THEO YÊU CẦU) */}
       <style>{`
-        .leaflet-tile-pane {
-          filter: ${isDark ? 'invert(90%) hue-rotate(180deg) brightness(95%) contrast(90%)' : 'none'} !important;
-          -webkit-filter: ${isDark ? 'invert(90%) hue-rotate(180deg) brightness(95%) contrast(90%)' : 'none'} !important;
-          transition: filter 0.3s ease;
+        .leaflet-container {
+          background-color: #0b1320 !important;
+        }
+        .leaflet-container .leaflet-tile-pane,
+        .leaflet-container .leaflet-tile {
+          filter: invert(100%) hue-rotate(195deg) saturate(30%) brightness(75%) contrast(125%) !important;
+          -webkit-filter: invert(100%) hue-rotate(195deg) saturate(30%) brightness(75%) contrast(125%) !important;
         }
       `}</style>
 
@@ -72,7 +72,7 @@ export const Map = ({
         zoom={zoom}
         scrollWheelZoom={true}
         zoomControl={false}
-        style={{ height: '100%', minHeight: '500px', width: '100%' }}
+        style={{ height: '100%', minHeight: '500px', width: '100%', backgroundColor: '#0b1320' }}
       >
         <MapController center={activeCenter} zoom={zoom} />
 
@@ -86,17 +86,17 @@ export const Map = ({
         {/* 3. Zoom buttons relocated to bottomright */}
         <ZoomControl position="bottomright" />
 
-        {/* Radius circle around user location (unaffected by dark filter) */}
+        {/* Radius circle around Hồ Hoàng Cầu / user location (chỉnh chuẩn 650m theo yêu cầu 2) */}
         {userLocation && (
           <Circle
             center={[userLocation.lat, userLocation.lng]}
-            radius={radiusKm * 1000}
+            radius={radiusMeters || 650}
             pathOptions={{
-              color: '#f97316',
-              fillColor: '#ea580c',
-              fillOpacity: isDark ? 0.12 : 0.16,
+              color: '#f59e0b',
+              fillColor: '#452c1e',
+              fillOpacity: 0.45,
               weight: 1.5,
-              dashArray: '6, 6',
+              dashArray: undefined,
             }}
           />
         )}
