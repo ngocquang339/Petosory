@@ -29,8 +29,8 @@ export const PetMapHeroView = () => {
   const [selectedSpa, setSelectedSpa] = useState(INITIAL_SPAS[0]); // Default selected: Petosory Flagship Spa
   const [bookingSpa, setBookingSpa] = useState(null);
 
-  // User location (Hoàng Cầu, Đống Đa, Hà Nội as shown in screenshot)
-  const userCoords = { lat: 21.0185, lng: 105.8235 };
+  // User location (Hoàng Cầu, Đống Đa, Hà Nội: [21.018, 105.824])
+  const userCoords = { lat: 21.018, lng: 105.824 };
 
   // Filter spas by radius and service
   const filteredSpas = useMemo(() => {
@@ -277,3 +277,4 @@ export const PetMapHeroView = () => {
   );
 };
 export default PetMapHeroView;
+

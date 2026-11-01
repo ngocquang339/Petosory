@@ -4,11 +4,12 @@ import {
   TileLayer,
   Marker as LeafletMarker,
   Circle,
+  ZoomControl,
   useMap as useLeafletMap,
 } from 'react-leaflet';
 import PetMarker from './Marker';
 import { userLocationIcon } from '../../utils/maps';
-import { RefreshCw, Flame, Calendar } from 'lucide-react';
+import { RefreshCw, Flame } from 'lucide-react';
 
 // Subcomponent to trigger flyTo on center changes
 const MapRecenter = ({ center, zoom }) => {
@@ -22,13 +23,13 @@ const MapRecenter = ({ center, zoom }) => {
 };
 
 export const Map = ({
-  center = [21.0185, 105.8235],
+  center = [21.018, 105.824],
   zoom = 14,
   spas = [],
   selectedSpa,
   onSelectSpa,
   onBookSpa,
-  userLocation = { lat: 21.0185, lng: 105.8235 },
+  userLocation = { lat: 21.018, lng: 105.824 },
   radiusKm = 3,
   onRefreshArea,
   className = 'h-full w-full',
@@ -43,20 +44,22 @@ export const Map = ({
         center={activeCenter}
         zoom={zoom}
         scrollWheelZoom={true}
-        zoomControl={true}
+        zoomControl={false}
         style={{ height: '100%', width: '100%', backgroundColor: '#090d16' }}
       >
         <MapRecenter center={activeCenter} zoom={zoom} />
 
-        {/* High quality CartoDB Dark Matter tiles matching exact screenshot */}
+        {/* 1. Free OpenStreetMap tile layer - No API Key required */}
         <TileLayer
-          attribution='&copy; <a href="https://carto.com/">CARTO</a> &copy; OpenStreetMap'
-          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-          subdomains="abcd"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           maxZoom={19}
         />
 
-        {/* Radius circle around user location */}
+        {/* 3. Zoom buttons relocated to bottomright */}
+        <ZoomControl position="bottomright" />
+
+        {/* Radius circle around user location (unaffected by dark filter) */}
         {userLocation && (
           <Circle
             center={[userLocation.lat, userLocation.lng]}
@@ -79,7 +82,7 @@ export const Map = ({
           />
         )}
 
-        {/* Spa Pins */}
+        {/* Spa Pins (Markers remain sharp orange) */}
         {spas.map((spa) => (
           <PetMarker
             key={spa.id}
@@ -93,15 +96,15 @@ export const Map = ({
 
       {/* Floating Badges & Controls Overlay (exact match to screenshot) */}
       
-      {/* 1. Top Left Legend: "Vị trí của bạn" */}
+      {/* Top Left Legend: "Vị trí của bạn" (Not covered by zoom control anymore) */}
       <div className="absolute top-4 left-4 z-[1000] pointer-events-none">
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/85 backdrop-blur-md border border-slate-700/70 text-white text-xs font-semibold shadow-lg">
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/90 backdrop-blur-md border border-slate-700/70 text-white text-xs font-semibold shadow-lg">
           <span className="w-2.5 h-2.5 rounded-full bg-sky-400 shadow-sm shadow-sky-400/80 animate-pulse"></span>
           <span>Vị trí của bạn</span>
         </div>
       </div>
 
-      {/* 2. Top Center Button: "Tìm kiếm lại khu vực này" */}
+      {/* Top Center Button: "Tìm kiếm lại khu vực này" */}
       <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] pointer-events-auto">
         <button
           type="button"
@@ -113,7 +116,7 @@ export const Map = ({
         </button>
       </div>
 
-      {/* 3. Floating Preview Card for Selected Spa on Map (like screenshot popup) */}
+      {/* Floating Preview Card for Selected Spa on Map */}
       {selectedSpa && (
         <div className="absolute top-20 right-6 z-[1000] pointer-events-auto max-w-xs animate-scale-up hidden sm:block">
           <div className="p-3.5 rounded-2xl bg-slate-900/90 backdrop-blur-md border border-slate-700/80 text-white shadow-2xl space-y-1.5">
@@ -145,8 +148,8 @@ export const Map = ({
         </div>
       )}
 
-      {/* 4. Bottom Right Promo Badge: "🔥 Combo Spa + Pate Giảm 10%" */}
-      <div className="absolute bottom-5 right-5 z-[1000] pointer-events-auto">
+      {/* Bottom Right Promo Badge (positioned to the left of zoom buttons) */}
+      <div className="absolute bottom-5 right-16 z-[1000] pointer-events-auto">
         <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-slate-900/90 backdrop-blur-md border border-orange-500/40 text-xs font-bold text-orange-400 shadow-xl hover:border-orange-500 transition-colors cursor-pointer">
           <Flame className="w-4 h-4 text-orange-500 animate-bounce-subtle" />
           <span>Combo Spa + Pate <span className="text-amber-300">Giảm 10%</span></span>
