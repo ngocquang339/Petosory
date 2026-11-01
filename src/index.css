@@ -69,26 +69,63 @@ html.dark ::-webkit-scrollbar-thumb {
   z-index: 200 !important;
 }
 
-/* Dark mode filter applied directly to leaflet tiles */
-.leaflet-tile {
-  filter: invert(90%) hue-rotate(180deg) brightness(95%) contrast(90%);
+/* Dark mode filter applied ONLY when html has class .dark or data-theme="dark" */
+html.dark .leaflet-tile-pane,
+html.dark .leaflet-tile,
+[data-theme="dark"] .leaflet-tile-pane,
+[data-theme="dark"] .leaflet-tile {
+  filter: invert(90%) hue-rotate(180deg) brightness(95%) contrast(90%) !important;
+  -webkit-filter: invert(90%) hue-rotate(180deg) brightness(95%) contrast(90%) !important;
 }
 
-/* Leaflet ZoomControl styling in bottomright */
-.leaflet-control-zoom {
+/* Light mode - normal clean Google Maps tiles */
+html:not(.dark) .leaflet-tile-pane,
+html:not(.dark) .leaflet-tile,
+[data-theme="light"] .leaflet-tile-pane,
+[data-theme="light"] .leaflet-tile {
+  filter: none !important;
+  -webkit-filter: none !important;
+}
+
+/* Leaflet ZoomControl styling in Dark Mode */
+html.dark .leaflet-control-zoom,
+[data-theme="dark"] .leaflet-control-zoom {
   border: 1px solid rgba(51, 65, 85, 0.8) !important;
   border-radius: 0.75rem !important;
   overflow: hidden !important;
   box-shadow: 0 10px 20px -3px rgba(0, 0, 0, 0.6) !important;
 }
-.leaflet-control-zoom a {
+html.dark .leaflet-control-zoom a,
+[data-theme="dark"] .leaflet-control-zoom a {
   background-color: #0f172a !important;
   color: #f8fafc !important;
   border-bottom: 1px solid rgba(51, 65, 85, 0.6) !important;
   transition: all 0.2s ease;
 }
-.leaflet-control-zoom a:hover {
+html.dark .leaflet-control-zoom a:hover,
+[data-theme="dark"] .leaflet-control-zoom a:hover {
   background-color: #1e293b !important;
+  color: #f97316 !important;
+}
+
+/* Leaflet ZoomControl styling in Light Mode */
+html:not(.dark) .leaflet-control-zoom,
+[data-theme="light"] .leaflet-control-zoom {
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 0.75rem !important;
+  overflow: hidden !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+}
+html:not(.dark) .leaflet-control-zoom a,
+[data-theme="light"] .leaflet-control-zoom a {
+  background-color: #ffffff !important;
+  color: #1e293b !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  transition: all 0.2s ease;
+}
+html:not(.dark) .leaflet-control-zoom a:hover,
+[data-theme="light"] .leaflet-control-zoom a:hover {
+  background-color: #f8fafc !important;
   color: #f97316 !important;
 }
 
