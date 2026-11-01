@@ -48,46 +48,34 @@ export const Map = ({
   isLocating = false,
   className = 'h-[550px] min-h-[500px] w-full',
 }) => {
-  const themeCtx = useThemeContext();
-  const isDark = themeCtx ? themeCtx.isDark : true;
-
-  // Bắt buộc đặt tọa độ của Chấm xanh, Tâm vòng tròn cam, và center của MapContainer tại cùng [21.0182, 105.8245]
+  // Bản đồ đồng nhất giao diện sáng rõ nét (Google Maps) cho cả Chế độ Sáng & Chế độ Tối
   const mapCenter = [userLocation.lat, userLocation.lng];
 
   return (
     <div
-      className={`relative ${className} min-h-[500px] w-full overflow-hidden transition-colors duration-200 ${
-        isDark ? 'dark-map' : ''
-      }`}
+      className={`relative ${className} min-h-[500px] w-full overflow-hidden transition-colors duration-200`}
     >
-      {/* 2. CHỈNH TÔNG MÀU XANH NAVY MƯỢT MÀ CHO BẢN ĐỒ TỐI (KHÔNG DÙNG INVERT) */}
+      {/* Đồng nhất màu bản đồ sáng tự nhiên, không áp dụng bộ lọc tối */}
       <style>{`
-        /* Chế độ Sáng */
         .leaflet-container {
           background-color: #f8fafc !important;
         }
         .leaflet-container .leaflet-tile-pane,
-        .leaflet-container .leaflet-tile {
-          filter: none !important;
-        }
-
-        /* Chế độ Tối - Nhuộm ánh Xanh Navy nhẹ nhàng, giữ nguyên độ sắc nét của đường xá */
-        .dark .leaflet-container,
-        .dark-map .leaflet-container {
-          background-color: #162032 !important;
-        }
+        .leaflet-container .leaflet-tile,
         .dark .leaflet-container .leaflet-tile-pane,
-        .dark-map .leaflet-container .leaflet-tile-pane {
-          filter: none !important;
-        }
         .dark .leaflet-container .leaflet-tile,
         .dark-map .leaflet-container .leaflet-tile {
-          filter: sepia(35%) hue-rotate(180deg) saturate(190%) brightness(115%) contrast(105%) !important;
+          filter: none !important;
+          -webkit-filter: none !important;
+        }
+        .dark .leaflet-container,
+        .dark-map .leaflet-container {
+          background-color: #f8fafc !important;
         }
       `}</style>
 
       <MapContainer
-        key={`pet-map-${isDark ? 'dark' : 'light'}`}
+        key="pet-map-standard"
         center={mapCenter}
         zoom={zoom}
         scrollWheelZoom={true}
@@ -96,22 +84,17 @@ export const Map = ({
       >
         <MapController center={mapCenter} zoom={zoom} />
 
-        {/* 1. Nguồn bản đồ Esri Dark Canvas (Dark) / Google Maps (Light) */}
+        {/* Nguồn bản đồ Google Maps sáng tự nhiên, hiển thị sắc nét tên đường xá */}
         <TileLayer
-          key={isDark ? 'dark-tile' : 'light-tile'}
-          attribution={isDark ? '&copy; Esri &mdash; Esri, DeLorme, NAVTEQ' : '&copy; Google Maps'}
-          url={
-            isDark
-              ? 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}'
-              : 'https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}'
-          }
+          attribution='&copy; Google Maps'
+          url="https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}"
           maxZoom={20}
         />
 
         {/* 3. Zoom buttons relocated to bottomright */}
         <ZoomControl position="bottomright" />
 
-        {/* 3. Vòng tròn bán kính và Chấm xanh Vị trí của bạn (tâm chuẩn [21.0182, 105.8245], bán kính 420m) */}
+        {/* Vòng tròn bán kính và Chấm xanh Vị trí của bạn (tâm chuẩn [21.0182, 105.8245], bán kính 420m) */}
         {userLocation && (
           <Circle
             center={[userLocation.lat, userLocation.lng]}
@@ -119,8 +102,8 @@ export const Map = ({
             pathOptions={{
               color: '#f59e0b',
               weight: 1.5,
-              fillColor: '#78350f',
-              fillOpacity: 0.22,
+              fillColor: '#fed7aa',
+              fillOpacity: 0.32,
               dashArray: undefined,
             }}
           />

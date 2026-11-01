@@ -72,27 +72,19 @@ html.dark ::-webkit-scrollbar-thumb {
   -webkit-filter: none !important;
 }
 
-/* Mặc định Chế độ Sáng (Light Mode) */
+/* Đồng nhất hiển thị bản đồ sáng rõ nét cho cả Chế độ Sáng và Chế độ Tối */
 .leaflet-container .leaflet-tile-pane,
-.leaflet-container .leaflet-tile {
+.leaflet-container .leaflet-tile,
+.dark .leaflet-container .leaflet-tile-pane,
+.dark .leaflet-container .leaflet-tile,
+.dark-map .leaflet-container .leaflet-tile {
   filter: none !important;
   -webkit-filter: none !important;
 }
 
-/* Chế độ Tối (Dark Mode) - Nhuộm ánh Xanh Navy nhẹ nhàng, giữ nguyên độ sắc nét của đường xá */
 .dark .leaflet-container,
 .dark-map .leaflet-container {
-  background-color: #162032 !important;
-}
-.dark .leaflet-container .leaflet-tile-pane,
-.dark-map .leaflet-container .leaflet-tile-pane {
-  filter: none !important;
-  -webkit-filter: none !important;
-}
-.dark .leaflet-container .leaflet-tile,
-.dark-map .leaflet-container .leaflet-tile {
-  filter: sepia(35%) hue-rotate(180deg) saturate(190%) brightness(115%) contrast(105%) !important;
-  -webkit-filter: sepia(35%) hue-rotate(180deg) saturate(190%) brightness(115%) contrast(105%) !important;
+  background-color: #f8fafc !important;
 }
 
 /* Leaflet ZoomControl styling in Dark Mode */
