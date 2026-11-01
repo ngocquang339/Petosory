@@ -73,19 +73,16 @@ html.dark ::-webkit-scrollbar-thumb {
 }
 
 /* Mặc định Chế độ Sáng (Light Mode) */
-.leaflet-container .leaflet-tile-pane {
-  filter: none !important;
-  -webkit-filter: none !important;
-}
+.leaflet-container .leaflet-tile-pane,
 .leaflet-container .leaflet-tile {
   filter: none !important;
   -webkit-filter: none !important;
 }
 
-/* Khi ở Chế độ Tối (Dark Mode - chỉ áp dụng duy nhất lên .leaflet-tile) */
+/* Chế độ Tối (Dark Mode) - Áp dụng bộ lọc SVG Dark Navy */
 .dark .leaflet-container,
 .dark-map .leaflet-container {
-  background-color: #0b1320 !important;
+  background-color: #1b2638 !important;
 }
 .dark .leaflet-container .leaflet-tile-pane,
 .dark-map .leaflet-container .leaflet-tile-pane {
@@ -94,8 +91,7 @@ html.dark ::-webkit-scrollbar-thumb {
 }
 .dark .leaflet-container .leaflet-tile,
 .dark-map .leaflet-container .leaflet-tile {
-  filter: invert(100%) hue-rotate(195deg) saturate(40%) brightness(85%) contrast(115%) !important;
-  -webkit-filter: invert(100%) hue-rotate(195deg) saturate(40%) brightness(85%) contrast(115%) !important;
+  filter: url("#petosory-dark-navy") !important;
 }
 
 /* Leaflet ZoomControl styling in Dark Mode */

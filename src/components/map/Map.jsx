@@ -61,35 +61,51 @@ export const Map = ({
         isDark ? 'dark-map' : ''
       }`}
     >
-      {/* CẬP NHẬT CSS ĐỒNG BỘ THEO CHẾ ĐỘ SÁNG / TỐI & CHỐNG DOUBLE INVERT */}
+      {/* 1. THÊM BỘ LỌC SVG VÀO TRONG COMPONENT BẢN ĐỒ */}
+      <svg width="0" height="0" style={{ position: 'absolute', pointerEvents: 'none' }} aria-hidden="true">
+        <defs>
+          <filter id="petosory-dark-navy" colorInterpolationFilters="sRGB">
+            {/* Tách độ sáng giữa Nước (thấp) - Đất (trung bình) - Đường trắng & vàng (cao) */}
+            <feColorMatrix
+              type="matrix"
+              values="1.3  0   -0.3  0  0
+                      1.3  0   -0.3  0  0
+                      1.3  0   -0.3  0  0
+                      0    0    0    1  0"
+            />
+            {/* Ánh xạ từng vùng sáng sang đúng bảng màu: Hồ tối sẫm (#0d1522), Đất xanh tối (#212e42), Đường xám (#4f5d73) */}
+            <feComponentTransfer>
+              <feFuncR type="table" tableValues="0.55 0.52 0.48 0.42 0.35 0.25 0.15 0.08 0.05 0.05 0.05 0.05 0.05 0.06 0.08 0.10 0.11 0.12 0.12 0.13 0.31" />
+              <feFuncG type="table" tableValues="0.62 0.58 0.54 0.48 0.40 0.30 0.20 0.12 0.08 0.08 0.08 0.08 0.08 0.09 0.12 0.14 0.15 0.16 0.17 0.18 0.36" />
+              <feFuncB type="table" tableValues="0.72 0.68 0.64 0.58 0.50 0.38 0.28 0.18 0.13 0.13 0.13 0.13 0.13 0.15 0.18 0.21 0.22 0.24 0.25 0.26 0.45" />
+            </feComponentTransfer>
+          </filter>
+        </defs>
+      </svg>
+
+      {/* 2. CẬP NHẬT LẠI CSS CHO CHẾ ĐỘ SÁNG VÀ CHẾ ĐỘ TỐI */}
       <style>{`
-        /* Mặc định Chế độ Sáng (Light Mode) */
+        /* Chế độ Sáng (Light Mode) */
         .leaflet-container {
           background-color: #f8fafc !important;
         }
-        .leaflet-container .leaflet-tile-pane {
-          filter: none !important;
-          -webkit-filter: none !important;
-        }
+        .leaflet-container .leaflet-tile-pane,
         .leaflet-container .leaflet-tile {
           filter: none !important;
-          -webkit-filter: none !important;
         }
 
-        /* Khi ở Chế độ Tối (Dark Mode - áp dụng qua class .dark hoặc .dark-map trên thẻ bọc ngoài) */
+        /* Chế độ Tối (Dark Mode) - Áp dụng bộ lọc SVG Dark Navy */
         .dark .leaflet-container,
         .dark-map .leaflet-container {
-          background-color: #0b1320 !important;
+          background-color: #1b2638 !important;
         }
         .dark .leaflet-container .leaflet-tile-pane,
         .dark-map .leaflet-container .leaflet-tile-pane {
           filter: none !important;
-          -webkit-filter: none !important;
         }
         .dark .leaflet-container .leaflet-tile,
         .dark-map .leaflet-container .leaflet-tile {
-          filter: invert(100%) hue-rotate(195deg) saturate(40%) brightness(85%) contrast(115%) !important;
-          -webkit-filter: invert(100%) hue-rotate(195deg) saturate(40%) brightness(85%) contrast(115%) !important;
+          filter: url("#petosory-dark-navy") !important;
         }
       `}</style>
 
@@ -121,7 +137,7 @@ export const Map = ({
             pathOptions={{
               color: '#f59e0b',
               fillColor: isDark ? '#452c1e' : '#fed7aa',
-              fillOpacity: isDark ? 0.45 : 0.35,
+              fillOpacity: isDark ? 0.28 : 0.25,
               weight: 1.5,
               dashArray: undefined,
             }}
