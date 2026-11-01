@@ -137,15 +137,15 @@ export const PetMapHeroView = () => {
   };
 
   return (
-    <div className="relative w-full h-[calc(100vh-108px)] min-h-[620px] max-h-[920px] flex flex-col md:flex-row bg-[#0b1320] text-slate-100 overflow-hidden font-sans">
-      {/* LEFT PANEL (Matches original design mock in Dark Navy) */}
-      <div className="w-full md:w-[440px] lg:w-[480px] h-full flex flex-col bg-[#0d1526] border-r border-slate-800 z-10 shrink-0">
+    <div className="relative w-full h-[calc(100vh-108px)] min-h-[620px] max-h-[920px] flex flex-col md:flex-row bg-slate-50 dark:bg-[#0b1320] text-slate-800 dark:text-slate-100 overflow-hidden font-sans transition-colors duration-200">
+      {/* LEFT PANEL (Responsive to Light & Dark Mode) */}
+      <div className="w-full md:w-[440px] lg:w-[480px] h-full flex flex-col bg-white dark:bg-[#0d1526] border-r border-slate-200 dark:border-slate-800 z-10 shrink-0 transition-colors duration-200">
         {/* Top Header */}
-        <div className="p-4 sm:p-5 border-b border-slate-800 space-y-3.5 shrink-0 bg-[#0d1526]/95 backdrop-blur-md">
+        <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 space-y-3.5 shrink-0 bg-white/95 dark:bg-[#0d1526]/95 backdrop-blur-md">
           {/* Title */}
           <div className="flex items-center gap-2">
             <span className="text-orange-500 text-xl font-bold">📍</span>
-            <h1 className="text-base sm:text-lg font-black text-white tracking-wide uppercase">
+            <h1 className="text-base sm:text-lg font-black text-slate-900 dark:text-white tracking-wide uppercase">
               TÌM PET SPA & GROOMING GẦN BẠN NHẤT
             </h1>
           </div>
@@ -157,7 +157,7 @@ export const PetMapHeroView = () => {
               <select
                 value={selectedDistrict}
                 onChange={(e) => setSelectedDistrict(e.target.value)}
-                className="w-full appearance-none bg-[#162136] hover:bg-[#1a2742] text-slate-200 border-slate-700/60 text-[11px] font-semibold py-2 pl-2.5 pr-6 rounded-xl border focus:outline-none focus:border-orange-500 cursor-pointer truncate transition-colors"
+                className="w-full appearance-none bg-slate-100 hover:bg-slate-200/80 text-slate-800 border-slate-300 dark:bg-[#162136] dark:hover:bg-[#1a2742] dark:text-slate-200 dark:border-slate-700/60 text-[11px] font-semibold py-2 pl-2.5 pr-6 rounded-xl border focus:outline-none focus:border-orange-500 cursor-pointer truncate transition-colors"
               >
                 <option value="Đống Đa, Hà Nội">Vị trí: Đống Đa, Hà Nội</option>
                 <option value="Ba Đình, Hà Nội">Vị trí: Ba Đình, Hà Nội</option>
@@ -173,7 +173,7 @@ export const PetMapHeroView = () => {
               <select
                 value={selectedRadius}
                 onChange={(e) => setSelectedRadius(Number(e.target.value))}
-                className="w-full appearance-none bg-[#162136] hover:bg-[#1a2742] text-slate-200 border-slate-700/60 text-[11px] font-semibold py-2 pl-2.5 pr-6 rounded-xl border focus:outline-none focus:border-orange-500 cursor-pointer truncate transition-colors"
+                className="w-full appearance-none bg-slate-100 hover:bg-slate-200/80 text-slate-800 border-slate-300 dark:bg-[#162136] dark:hover:bg-[#1a2742] dark:text-slate-200 dark:border-slate-700/60 text-[11px] font-semibold py-2 pl-2.5 pr-6 rounded-xl border focus:outline-none focus:border-orange-500 cursor-pointer truncate transition-colors"
               >
                 <option value={1}>Bán kính: 650m</option>
                 <option value={3}>Bán kính: 3km</option>
@@ -188,7 +188,7 @@ export const PetMapHeroView = () => {
               <select
                 value={selectedService}
                 onChange={(e) => setSelectedService(e.target.value)}
-                className="w-full appearance-none bg-[#162136] hover:bg-[#1a2742] text-slate-200 border-slate-700/60 text-[11px] font-semibold py-2 pl-2.5 pr-6 rounded-xl border focus:outline-none focus:border-orange-500 cursor-pointer truncate transition-colors"
+                className="w-full appearance-none bg-slate-100 hover:bg-slate-200/80 text-slate-800 border-slate-300 dark:bg-[#162136] dark:hover:bg-[#1a2742] dark:text-slate-200 dark:border-slate-700/60 text-[11px] font-semibold py-2 pl-2.5 pr-6 rounded-xl border focus:outline-none focus:border-orange-500 cursor-pointer truncate transition-colors"
               >
                 <option value="Tắm & Cắt tỉa">Dịch vụ: Tắm & Cắt tỉa</option>
                 <option value="Khám thú y">Dịch vụ: Khám thú y</option>
@@ -203,16 +203,16 @@ export const PetMapHeroView = () => {
         {/* List of Spa Cards (Scrollable) */}
         <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-thin">
           {filteredSpas.length === 0 ? (
-            <div className="text-center py-10 px-4 text-slate-400 text-xs space-y-3 bg-[#111827]/60 rounded-2xl border border-slate-800">
+            <div className="text-center py-10 px-4 text-slate-500 dark:text-slate-400 text-xs space-y-3 bg-slate-50 dark:bg-[#111827]/60 rounded-2xl border border-slate-200 dark:border-slate-800">
               <span className="text-3xl block">🔍</span>
-              <p className="font-medium text-slate-300">
-                Không có Spa nào trong bán kính <span className="text-orange-400 font-bold">{selectedRadius}km</span> từ vị trí hiện tại của bạn.
+              <p className="font-medium text-slate-700 dark:text-slate-300">
+                Không có Spa nào trong bán kính <span className="text-orange-500 font-bold">{selectedRadius}km</span> từ vị trí hiện tại của bạn.
               </p>
               <div className="flex flex-col gap-2 pt-1">
                 <button
                   type="button"
                   onClick={() => setSelectedRadius(10)}
-                  className="px-3.5 py-1.5 rounded-xl bg-orange-500/20 hover:bg-orange-500/30 text-orange-400 border border-orange-500/40 text-[11px] font-bold transition-all cursor-pointer"
+                  className="px-3.5 py-1.5 rounded-xl bg-orange-500/10 hover:bg-orange-500/20 text-orange-600 dark:bg-orange-500/20 dark:hover:bg-orange-500/30 dark:text-orange-400 border border-orange-500/30 text-[11px] font-bold transition-all cursor-pointer"
                 >
                   Mở rộng bán kính lên 10km
                 </button>
@@ -223,7 +223,7 @@ export const PetMapHeroView = () => {
                     setSelectedDistrict('Đống Đa, Hà Nội');
                     setSelectedSpa(INITIAL_SPAS[0]);
                   }}
-                  className="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-[11px] font-medium transition-all cursor-pointer"
+                  className="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 text-[11px] font-medium transition-all cursor-pointer"
                 >
                   Quay lại Hồ Hoàng Cầu, Hà Nội
                 </button>
@@ -239,12 +239,12 @@ export const PetMapHeroView = () => {
                   onClick={() => setSelectedSpa(spa)}
                   className={`relative p-3 rounded-2xl cursor-pointer transition-all duration-200 flex gap-3 ${
                     isSelected
-                      ? 'bg-[#162136] border-2 border-orange-500 shadow-xl shadow-orange-950/30'
-                      : 'bg-[#111928] hover:bg-[#162136] border border-slate-800/80 hover:border-slate-700'
+                      ? 'bg-orange-50/90 dark:bg-[#162136] border-2 border-orange-500 shadow-md dark:shadow-xl dark:shadow-orange-950/30'
+                      : 'bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 shadow-xs dark:bg-[#111928] dark:hover:bg-[#162136] dark:border-slate-800/80 dark:hover:border-slate-700'
                   }`}
                 >
                   {/* Thumbnail Image */}
-                  <div className="w-24 sm:w-28 h-22 sm:h-24 rounded-xl overflow-hidden bg-slate-800 shrink-0 relative">
+                  <div className="w-24 sm:w-28 h-22 sm:h-24 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 shrink-0 relative">
                     <img
                       src={spa.image}
                       alt={spa.name}
@@ -258,23 +258,23 @@ export const PetMapHeroView = () => {
                       {/* Name */}
                       <h3
                         className={`text-xs sm:text-sm font-bold truncate ${
-                          isSelected ? 'text-white' : 'text-slate-200'
+                          isSelected ? 'text-orange-950 dark:text-white' : 'text-slate-900 dark:text-slate-200'
                         }`}
                       >
                         {spa.name}
                       </h3>
 
                       {/* Distance & Rating */}
-                      <div className="flex items-center gap-2 text-[11px] text-slate-300 mt-0.5">
+                      <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-300 mt-0.5">
                         <span>{spa.distanceText || 'Cách 500m'}</span>
-                        <div className="flex items-center gap-0.5 text-amber-400 font-bold">
+                        <div className="flex items-center gap-0.5 text-amber-500 dark:text-amber-400 font-bold">
                           <span>★</span>
                           <span>{spa.rating}</span>
                         </div>
                       </div>
 
                       {/* Open status */}
-                      <p className="text-[11px] text-emerald-400 font-medium mt-0.5">
+                      <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium mt-0.5">
                         Đang mở cửa
                       </p>
                     </div>
@@ -282,7 +282,7 @@ export const PetMapHeroView = () => {
                     {/* Action button & Perks */}
                     <div className="mt-2 flex items-center justify-between gap-2">
                       {spa.tag ? (
-                        <span className="text-[10px] text-rose-300/90 font-medium truncate flex items-center gap-1">
+                        <span className="text-[10px] text-rose-600 dark:text-rose-300 font-medium truncate flex items-center gap-1">
                           🎁 {spa.tag}
                         </span>
                       ) : (
@@ -311,16 +311,16 @@ export const PetMapHeroView = () => {
 
         {/* Bottom Banner on Left Panel */}
         {showShopBanner && (
-          <div className="p-3 bg-[#111928] border-t border-slate-800 shrink-0">
-            <div className="relative p-2.5 rounded-xl bg-[#1a2333] border border-orange-500/30 flex items-center justify-between gap-2 text-xs">
+          <div className="p-3 bg-white dark:bg-[#111928] border-t border-slate-200 dark:border-slate-800 shrink-0 transition-colors duration-200">
+            <div className="relative p-2.5 rounded-xl bg-orange-50/80 dark:bg-[#1a2333] border border-orange-200 dark:border-orange-500/30 flex items-center justify-between gap-2 text-xs">
               <div className="flex items-center gap-2 min-w-0">
                 <span className="text-base shrink-0">🏪</span>
-                <p className="text-[11px] text-slate-300 leading-tight">
-                  <span className="text-orange-400 font-bold">🎁 Cần mua sắm cho Boss?</span>{' '}
+                <p className="text-[11px] text-slate-700 dark:text-slate-300 leading-tight">
+                  <span className="text-orange-600 dark:text-orange-400 font-bold">🎁 Cần mua sắm cho Boss?</span>{' '}
                   Ghé ngay Pet Shop online hàng chính hãng{' '}
                   <Link
                     to="/shop"
-                    className="text-orange-400 hover:text-orange-300 font-bold underline"
+                    className="text-orange-600 dark:text-orange-400 hover:text-orange-500 dark:hover:text-orange-300 font-bold underline"
                   >
                     [Xem shop →]
                   </Link>
@@ -329,7 +329,7 @@ export const PetMapHeroView = () => {
               <button
                 type="button"
                 onClick={() => setShowShopBanner(false)}
-                className="text-slate-400 hover:text-white p-1 shrink-0 cursor-pointer"
+                className="text-slate-400 hover:text-slate-700 dark:hover:text-white p-1 shrink-0 cursor-pointer"
               >
                 <X className="w-3.5 h-3.5" />
               </button>

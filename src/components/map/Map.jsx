@@ -48,21 +48,48 @@ export const Map = ({
   isLocating = false,
   className = 'h-[550px] min-h-[500px] w-full',
 }) => {
+  const themeCtx = useThemeContext();
+  const isDark = themeCtx ? themeCtx.isDark : true;
+
   const activeCenter = selectedSpa
     ? [selectedSpa.lat, selectedSpa.lng]
     : [userLocation.lat, userLocation.lng];
 
   return (
-    <div className={`relative ${className} min-h-[500px] w-full overflow-hidden bg-[#0b1320]`}>
-      {/* 1. ÉP MÀU BẢN ĐỒ SANG DARK NAVY BẰNG CSS FILTER (BẮT BUỘC THEO YÊU CẦU) */}
+    <div
+      className={`relative ${className} min-h-[500px] w-full overflow-hidden transition-colors duration-200 ${
+        isDark ? 'dark-map' : ''
+      }`}
+    >
+      {/* CẬP NHẬT CSS ĐỒNG BỘ THEO CHẾ ĐỘ SÁNG / TỐI & CHỐNG DOUBLE INVERT */}
       <style>{`
+        /* Mặc định Chế độ Sáng (Light Mode) */
         .leaflet-container {
+          background-color: #f8fafc !important;
+        }
+        .leaflet-container .leaflet-tile-pane {
+          filter: none !important;
+          -webkit-filter: none !important;
+        }
+        .leaflet-container .leaflet-tile {
+          filter: none !important;
+          -webkit-filter: none !important;
+        }
+
+        /* Khi ở Chế độ Tối (Dark Mode - áp dụng qua class .dark hoặc .dark-map trên thẻ bọc ngoài) */
+        .dark .leaflet-container,
+        .dark-map .leaflet-container {
           background-color: #0b1320 !important;
         }
-        .leaflet-container .leaflet-tile-pane,
-        .leaflet-container .leaflet-tile {
-          filter: invert(100%) hue-rotate(195deg) saturate(30%) brightness(75%) contrast(125%) !important;
-          -webkit-filter: invert(100%) hue-rotate(195deg) saturate(30%) brightness(75%) contrast(125%) !important;
+        .dark .leaflet-container .leaflet-tile-pane,
+        .dark-map .leaflet-container .leaflet-tile-pane {
+          filter: none !important;
+          -webkit-filter: none !important;
+        }
+        .dark .leaflet-container .leaflet-tile,
+        .dark-map .leaflet-container .leaflet-tile {
+          filter: invert(100%) hue-rotate(195deg) saturate(40%) brightness(85%) contrast(115%) !important;
+          -webkit-filter: invert(100%) hue-rotate(195deg) saturate(40%) brightness(85%) contrast(115%) !important;
         }
       `}</style>
 
@@ -72,7 +99,7 @@ export const Map = ({
         zoom={zoom}
         scrollWheelZoom={true}
         zoomControl={false}
-        style={{ height: '100%', minHeight: '500px', width: '100%', backgroundColor: '#0b1320' }}
+        style={{ height: '100%', minHeight: '500px', width: '100%' }}
       >
         <MapController center={activeCenter} zoom={zoom} />
 
@@ -86,15 +113,15 @@ export const Map = ({
         {/* 3. Zoom buttons relocated to bottomright */}
         <ZoomControl position="bottomright" />
 
-        {/* Radius circle around Hồ Hoàng Cầu / user location (chỉnh chuẩn 650m theo yêu cầu 2) */}
+        {/* Radius circle around Hồ Hoàng Cầu / user location */}
         {userLocation && (
           <Circle
             center={[userLocation.lat, userLocation.lng]}
             radius={radiusMeters || 650}
             pathOptions={{
               color: '#f59e0b',
-              fillColor: '#452c1e',
-              fillOpacity: 0.45,
+              fillColor: isDark ? '#452c1e' : '#fed7aa',
+              fillOpacity: isDark ? 0.45 : 0.35,
               weight: 1.5,
               dashArray: undefined,
             }}
