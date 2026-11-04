@@ -11,6 +11,11 @@ export const OwnerDashboardPage = () => {
   const [bookings, setBookings] = useState([]);
   const [spa, setSpa] = useState(null);
 
+  const refreshBookings = async () => {
+    const bList = await spaService.getSpaBookings();
+    setBookings(bList);
+  };
+
   useEffect(() => {
     const loadData = async () => {
       const bList = await spaService.getSpaBookings();
@@ -20,6 +25,16 @@ export const OwnerDashboardPage = () => {
     };
     loadData();
   }, []);
+
+  const handleConfirmBooking = async (id) => {
+    await spaService.confirmSpaBooking(id);
+    await refreshBookings();
+  };
+
+  const handleRejectBooking = async (id, reason) => {
+    await spaService.rejectSpaBooking(id, reason);
+    await refreshBookings();
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
@@ -66,7 +81,11 @@ export const OwnerDashboardPage = () => {
 
       {/* Body content based on active tab */}
       {activeTab === 'dashboard' ? (
-        <Dashboard bookings={bookings} />
+        <Dashboard
+          bookings={bookings}
+          onConfirmBooking={handleConfirmBooking}
+          onRejectBooking={handleRejectBooking}
+        />
       ) : (
         <Management spa={spa} />
       )}

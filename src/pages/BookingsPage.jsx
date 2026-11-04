@@ -25,6 +25,7 @@ import Modal from '../components/common/Modal';
 export const BookingsPage = () => {
   const navigate = useNavigate();
   const [bookings, setBookings] = useState([]);
+  const [allBookings, setAllBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('ALL');
 
@@ -53,8 +54,13 @@ export const BookingsPage = () => {
   const fetchBookings = async () => {
     setLoading(true);
     try {
-      const data = await spaService.getSpaBookings(activeTab);
-      setBookings(data);
+      const all = await spaService.getSpaBookings('ALL');
+      setAllBookings(all);
+      if (activeTab === 'ALL') {
+        setBookings(all);
+      } else {
+        setBookings(all.filter((b) => b.status === activeTab));
+      }
     } catch (err) {
       console.error(err);
     } finally {
@@ -122,12 +128,14 @@ export const BookingsPage = () => {
   };
 
   // Counts
-  const totalCount = bookings.length;
-  const confirmedCount = bookings.filter((b) => b.status === 'CONFIRMED').length;
-  const cancelledCount = bookings.filter((b) => b.status === 'CANCELLED').length;
+  const totalCount = allBookings.length;
+  const pendingCount = allBookings.filter((b) => b.status === 'PENDING').length;
+  const confirmedCount = allBookings.filter((b) => b.status === 'CONFIRMED').length;
+  const cancelledCount = allBookings.filter((b) => b.status === 'CANCELLED').length;
 
   const tabs = [
     { id: 'ALL', label: 'Tất cả lịch hẹn' },
+    { id: 'PENDING', label: 'Chờ Spa xác nhận' },
     { id: 'CONFIRMED', label: 'Đã xác nhận' },
     { id: 'CANCELLED', label: 'Đã hủy' },
   ];
@@ -220,6 +228,8 @@ export const BookingsPage = () => {
               >
                 {tab.id === 'ALL'
                   ? totalCount
+                  : tab.id === 'PENDING'
+                  ? pendingCount
                   : tab.id === 'CONFIRMED'
                   ? confirmedCount
                   : cancelledCount}
@@ -262,6 +272,7 @@ export const BookingsPage = () => {
         <div className="space-y-4">
           {bookings.map((booking) => {
             const cancelCheck = spaService.checkBookingCancelable(booking);
+            const isPending = booking.status === 'PENDING';
             const isConfirmed = booking.status === 'CONFIRMED';
             const isCancelled = booking.status === 'CANCELLED';
 
@@ -271,6 +282,8 @@ export const BookingsPage = () => {
                 className={`bg-white dark:bg-[#111928] rounded-2xl border transition-all hover:shadow-md ${
                   isCancelled
                     ? 'border-slate-200 dark:border-slate-800/80 opacity-90'
+                    : isPending
+                    ? 'border-amber-300 dark:border-amber-800/80 hover:border-amber-500'
                     : 'border-slate-200 dark:border-slate-800 hover:border-orange-500/40'
                 }`}
               >
@@ -286,6 +299,12 @@ export const BookingsPage = () => {
                   </div>
 
                   <div className="flex items-center gap-2">
+                    {isPending && (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
+                        <Clock className="w-3.5 h-3.5 text-amber-600 animate-pulse" />
+                        CHỜ SPA XÁC NHẬN
+                      </span>
+                    )}
                     {isConfirmed && (
                       <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
                         <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
@@ -386,6 +405,56 @@ export const BookingsPage = () => {
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                       Hủy & Thao tác
                     </span>
+
+                    {/* PENDING: Chờ Spa duyệt & check 3-hour policy */}
+                    {isPending && (
+                      <div className="space-y-3">
+                        <div className="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-[11px] text-amber-900 dark:text-amber-200 font-medium leading-snug">
+                          <span className="font-bold flex items-center gap-1 text-amber-700 dark:text-amber-400">
+                            <Clock className="w-3.5 h-3.5 animate-pulse" /> Đang chờ Chủ Spa xác nhận
+                          </span>
+                          <span className="block mt-1">
+                            {cancelCheck.canCancel ? (
+                              <>
+                                Còn <strong>{cancelCheck.remainingText}</strong> trong thời hạn 3 giờ để bạn hủy lịch nếu đổi ý.
+                              </>
+                            ) : (
+                              'Đã quá 3 giờ kể từ khi đặt lịch.'
+                            )}
+                          </span>
+                        </div>
+
+                        {cancelCheck.canCancel ? (
+                          <button
+                            type="button"
+                            onClick={() => handleOpenCancelModal(booking)}
+                            className="w-full py-2 px-3 rounded-xl border border-rose-300 dark:border-rose-800 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 font-bold text-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
+                          >
+                            <XCircle className="w-3.5 h-3.5" />
+                            <span>Hủy lịch hẹn</span>
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            disabled
+                            title="Đã quá thời hạn 3 giờ kể từ khi đặt lịch"
+                            className="w-full py-2 px-3 rounded-xl bg-slate-100 dark:bg-slate-800/60 text-slate-400 border border-slate-200 dark:border-slate-700/60 font-semibold text-xs cursor-not-allowed flex items-center justify-center gap-1.5"
+                          >
+                            <XCircle className="w-3.5 h-3.5 opacity-50" />
+                            <span>Không thể hủy (&gt; 3h)</span>
+                          </button>
+                        )}
+
+                        <button
+                          type="button"
+                          onClick={() => setDetailBooking(booking)}
+                          className="w-full py-1.5 px-3 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center justify-center gap-1 cursor-pointer"
+                        >
+                          <span>Xem chi tiết</span>
+                          <ArrowRight className="w-3 h-3" />
+                        </button>
+                      </div>
+                    )}
 
                     {/* CONFIRMED: check 3-hour policy */}
                     {isConfirmed && (
@@ -603,13 +672,17 @@ export const BookingsPage = () => {
           <div className="space-y-4 text-xs">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
               <span className="text-slate-500">Trạng thái:</span>
-              {detailBooking.status === 'CONFIRMED' ? (
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">
-                  ĐÃ XÁC NHẬN
+              {detailBooking.status === 'PENDING' ? (
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-300">
+                  <Clock className="w-3 h-3 animate-pulse text-amber-600" /> CHỜ SPA XÁC NHẬN
+                </span>
+              ) : detailBooking.status === 'CONFIRMED' ? (
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-300">
+                  <CheckCircle2 className="w-3 h-3 text-emerald-600" /> ĐÃ XÁC NHẬN
                 </span>
               ) : (
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-700">
-                  ĐÃ HỦY
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-300">
+                  <XCircle className="w-3 h-3 text-rose-600" /> ĐÃ HỦY
                 </span>
               )}
             </div>

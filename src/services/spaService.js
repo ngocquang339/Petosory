@@ -34,8 +34,8 @@ const initSpaBookingsStorage = () => {
         contactName: 'Nguyễn Thị Hương',
         contactPhone: '0912 345 678',
         note: 'Bé hơi nhát nước, nhờ các bạn nhẹ tay với bé.',
-        createdAt: new Date(now - 45 * 60 * 1000).toISOString(), // Vừa đặt cách đây 45 phút (< 3h) -> ĐƯỢC PHÉP HỦY
-        status: 'CONFIRMED',
+        createdAt: new Date(now - 15 * 60 * 1000).toISOString(), // Vừa đặt cách đây 15 phút (< 3h) -> CHỜ SPA XÁC NHẬN
+        status: 'PENDING',
       },
       {
         id: 'BK-891942',
@@ -119,11 +119,45 @@ export const spaService = {
       id: 'BK-' + Date.now().toString().slice(-6),
       ...booking,
       createdAt: new Date().toISOString(),
-      status: 'CONFIRMED',
+      status: 'PENDING', // Đặt lịch ban đầu ở trạng thái Chờ xác nhận từ Spa Owner
     };
     bookings.unshift(newBooking);
     storage.set('spa_bookings', bookings);
     return newBooking;
+  },
+
+  async confirmSpaBooking(bookingId) {
+    await delay(250);
+    const bookings = initSpaBookingsStorage();
+    const index = bookings.findIndex((b) => b.id === bookingId);
+    if (index === -1) {
+      throw new Error('Không tìm thấy thông tin lịch hẹn để xác nhận');
+    }
+    const booking = bookings[index];
+    if (booking.status === 'CANCELLED') {
+      throw new Error('Lịch hẹn này đã bị hủy, không thể xác nhận');
+    }
+    booking.status = 'CONFIRMED';
+    booking.confirmedAt = new Date().toISOString();
+    bookings[index] = booking;
+    storage.set('spa_bookings', bookings);
+    return booking;
+  },
+
+  async rejectSpaBooking(bookingId, reason = 'Spa từ chối tiếp nhận (quá tải / kín lịch)') {
+    await delay(250);
+    const bookings = initSpaBookingsStorage();
+    const index = bookings.findIndex((b) => b.id === bookingId);
+    if (index === -1) {
+      throw new Error('Không tìm thấy thông tin lịch hẹn');
+    }
+    const booking = bookings[index];
+    booking.status = 'CANCELLED';
+    booking.cancelledAt = new Date().toISOString();
+    booking.cancelReason = reason;
+    bookings[index] = booking;
+    storage.set('spa_bookings', bookings);
+    return booking;
   },
 
   async getSpaBookings(status = 'ALL') {

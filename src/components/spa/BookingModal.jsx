@@ -62,23 +62,36 @@ export const BookingModal = ({ isOpen, onClose, spa }) => {
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
-      title={successBooking ? 'Đặt lịch thành công!' : `Đặt lịch tại ${spa.name}`}
+      title={successBooking ? 'Yêu cầu đặt lịch đã gửi!' : `Đặt lịch tại ${spa.name}`}
       maxWidth="max-w-xl"
     >
       {successBooking ? (
         <div className="text-center py-5 space-y-4">
-          <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-md">
-            <CheckCircle2 className="w-10 h-10" />
+          <div className="w-16 h-16 bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 rounded-full flex items-center justify-center mx-auto shadow-md">
+            <Clock className="w-9 h-9 animate-pulse" />
           </div>
-          <h3 className="text-lg font-bold text-slate-800 dark:text-white">
-            Lịch hẹn của bạn đã được ghi nhận!
-          </h3>
+          <div className="space-y-1">
+            <h3 className="text-lg font-bold text-slate-800 dark:text-white">
+              Đang chờ xác nhận từ Chủ Spa!
+            </h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto">
+              Yêu cầu đặt lịch của bạn đã được gửi thành công đến cơ sở <strong>{successBooking.spaName}</strong>. Chủ Spa sẽ kiểm tra phòng chăm sóc và xác nhận lịch hẹn của bạn sớm nhất.
+            </p>
+          </div>
+
           <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl text-left text-xs space-y-2 border border-slate-100 dark:border-slate-700">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-700">
+              <span className="text-slate-500 font-semibold">Trạng thái hiện tại:</span>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/70 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
+                <Clock className="w-3 h-3 text-amber-600" />
+                CHỜ XÁC NHẬN
+              </span>
+            </div>
             <p>
               <strong>Mã lịch hẹn:</strong> <span className="font-mono text-orange-600 font-bold">{successBooking.id}</span>
             </p>
             <p>
-              <strong>Spa:</strong> {successBooking.spaName}
+              <strong>Spa tiếp đón:</strong> {successBooking.spaName}
             </p>
             <p>
               <strong>Dịch vụ:</strong> {successBooking.serviceName} {successBooking.price ? `(${formatCurrency(successBooking.price)})` : ''}
@@ -88,7 +101,7 @@ export const BookingModal = ({ isOpen, onClose, spa }) => {
               {successBooking.petType === 'cat' ? 'Mèo' : 'Chó'})
             </p>
             <p>
-              <strong>Thời gian hẹn:</strong> {successBooking.bookingTime} ngày{' '}
+              <strong>Thời gian dự kiến:</strong> {successBooking.bookingTime} ngày{' '}
               {successBooking.bookingDate}
             </p>
           </div>
@@ -96,7 +109,7 @@ export const BookingModal = ({ isOpen, onClose, spa }) => {
           <div className="p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 rounded-xl text-left text-[11px] text-amber-800 dark:text-amber-200 flex items-start gap-2">
             <Clock className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
             <div>
-              <strong className="font-bold">Chính sách hủy lịch:</strong> Bạn có thể xem lại thông tin và hủy lịch hẹn trực tuyến trong vòng <strong>3 giờ</strong> kể từ lúc đặt hẹn. Sau 3 giờ, hệ thống sẽ chốt lịch và chuyển tiếp đón đến nhân viên Spa.
+              <strong className="font-bold">Chính sách hủy lịch:</strong> Trong thời gian chờ duyệt và trong vòng <strong>3 giờ</strong> kể từ lúc đặt hẹn, bạn có thể tự do hủy yêu cầu lịch hẹn trực tuyến nếu thay đổi kế hoạch.
             </div>
           </div>
 
