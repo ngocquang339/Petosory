@@ -52,7 +52,7 @@ export const Header = () => {
   ];
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 transition-colors shadow-xs">
+    <header className="sticky top-0 z-[1100] bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 transition-colors shadow-xs">
       {/* Top micro bar for demo switch & location */}
       <div className="bg-slate-900 text-slate-300 text-xs px-4 py-1.5 flex items-center justify-between">
         <div className="flex items-center gap-3">

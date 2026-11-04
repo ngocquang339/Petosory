@@ -371,7 +371,7 @@ export const PetMapHeroView = () => {
   };
 
   return (
-    <div className="relative w-full h-[calc(100vh-108px)] min-h-[620px] max-h-[920px] flex flex-col md:flex-row bg-slate-50 dark:bg-[#0b1320] text-slate-800 dark:text-slate-100 overflow-hidden font-sans transition-colors duration-200">
+    <div className="relative z-10 isolate w-full h-[calc(100vh-108px)] min-h-[620px] max-h-[920px] flex flex-col md:flex-row bg-slate-50 dark:bg-[#0b1320] text-slate-800 dark:text-slate-100 overflow-hidden font-sans transition-colors duration-200">
       {/* LEFT PANEL (Responsive to Light & Dark Mode) */}
       <div className="w-full md:w-[440px] lg:w-[480px] h-full flex flex-col bg-white dark:bg-[#0d1526] border-r border-slate-200 dark:border-slate-800 z-10 shrink-0 transition-colors duration-200">
         {/* Top Header */}

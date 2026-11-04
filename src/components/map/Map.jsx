@@ -54,7 +54,7 @@ export const Map = ({
 
   return (
     <div
-      className={`relative ${className} min-h-[500px] w-full overflow-hidden transition-colors duration-200`}
+      className={`relative isolate ${className} min-h-[500px] w-full overflow-hidden transition-colors duration-200`}
     >
       {/* Đồng nhất màu bản đồ sáng tự nhiên, không áp dụng bộ lọc tối */}
       <style>{`
