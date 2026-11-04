@@ -24,6 +24,15 @@ export const OwnerDashboardPage = () => {
       setSpa(s);
     };
     loadData();
+
+    // Subscribe to realtime updates from Supabase Cloud
+    const unsubscribe = spaService.subscribeToBookings(() => {
+      refreshBookings();
+    });
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
   }, []);
 
   const handleConfirmBooking = async (id) => {

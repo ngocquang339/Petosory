@@ -1,7 +1,56 @@
 import { storage } from '../utils/storage';
 import { INITIAL_SPAS } from '../utils/constants';
+import { supabase, isSupabaseConfigured } from './supabaseClient';
 
-const delay = (ms = 200) => new Promise((resolve) => setTimeout(resolve, ms));
+const delay = (ms = 100) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const mapDbToBooking = (row) => ({
+  id: row.id,
+  spaId: row.spa_id,
+  spaName: row.spa_name,
+  spaAddress: row.spa_address,
+  spaPhone: row.spa_phone,
+  serviceName: row.service_name,
+  price: row.price ? Number(row.price) : 0,
+  petName: row.pet_name,
+  petType: row.pet_type,
+  bookingDate: row.booking_date,
+  bookingTime: row.booking_time,
+  contactName: row.contact_name,
+  contactPhone: row.contact_phone,
+  note: row.note || '',
+  status: row.status,
+  createdAt: row.created_at,
+  confirmedAt: row.confirmed_at,
+  cancelledAt: row.cancelled_at,
+  cancelReason: row.cancel_reason,
+  cancelledBy: row.cancelled_by,
+  rejectedBySpa: Boolean(row.rejected_by_spa),
+});
+
+const mapBookingToDb = (b) => ({
+  id: b.id,
+  spa_id: b.spaId,
+  spa_name: b.spaName,
+  spa_address: b.spaAddress || '',
+  spa_phone: b.spaPhone || '',
+  service_name: b.serviceName,
+  price: b.price || 0,
+  pet_name: b.petName,
+  pet_type: b.petType,
+  booking_date: b.bookingDate,
+  booking_time: b.bookingTime,
+  contact_name: b.contactName,
+  contact_phone: b.contactPhone,
+  note: b.note || '',
+  status: b.status || 'PENDING',
+  created_at: b.createdAt || new Date().toISOString(),
+  confirmed_at: b.confirmedAt || null,
+  cancelled_at: b.cancelledAt || null,
+  cancel_reason: b.cancelReason || null,
+  cancelled_by: b.cancelledBy || null,
+  rejected_by_spa: Boolean(b.rejectedBySpa),
+});
 
 const initSpasStorage = () => {
   let spas = storage.get('spas');
@@ -113,57 +162,127 @@ export const spaService = {
   },
 
   async bookSpaService(booking) {
-    await delay(300);
-    const bookings = initSpaBookingsStorage();
     const newBooking = {
       id: 'BK-' + Date.now().toString().slice(-6),
       ...booking,
       createdAt: new Date().toISOString(),
-      status: 'PENDING', // Đặt lịch ban đầu ở trạng thái Chờ xác nhận từ Spa Owner
+      status: 'PENDING',
     };
+
+    if (isSupabaseConfigured) {
+      try {
+        const { error } = await supabase
+          .from('spa_bookings')
+          .insert(mapBookingToDb(newBooking));
+        if (error) {
+          console.warn('Supabase insert warning:', error);
+        }
+      } catch (err) {
+        console.warn('Supabase book error:', err);
+      }
+    }
+
+    const bookings = initSpaBookingsStorage();
     bookings.unshift(newBooking);
     storage.set('spa_bookings', bookings);
     return newBooking;
   },
 
   async confirmSpaBooking(bookingId) {
-    await delay(250);
+    if (isSupabaseConfigured) {
+      try {
+        const { error } = await supabase
+          .from('spa_bookings')
+          .update({
+            status: 'CONFIRMED',
+            confirmed_at: new Date().toISOString(),
+          })
+          .eq('id', bookingId);
+        if (error) console.warn('Supabase confirm warning:', error);
+      } catch (err) {
+        console.warn('Supabase confirm error:', err);
+      }
+    }
+
     const bookings = initSpaBookingsStorage();
     const index = bookings.findIndex((b) => b.id === bookingId);
-    if (index === -1) {
-      throw new Error('Không tìm thấy thông tin lịch hẹn để xác nhận');
+    if (index !== -1) {
+      bookings[index].status = 'CONFIRMED';
+      bookings[index].confirmedAt = new Date().toISOString();
+      storage.set('spa_bookings', bookings);
+      return bookings[index];
     }
-    const booking = bookings[index];
-    if (booking.status === 'CANCELLED') {
-      throw new Error('Lịch hẹn này đã bị hủy, không thể xác nhận');
-    }
-    booking.status = 'CONFIRMED';
-    booking.confirmedAt = new Date().toISOString();
-    bookings[index] = booking;
-    storage.set('spa_bookings', bookings);
-    return booking;
+    return { id: bookingId, status: 'CONFIRMED' };
   },
 
   async rejectSpaBooking(bookingId, reason = 'Quán có việc bận nên đóng cửa') {
-    await delay(250);
+    if (isSupabaseConfigured) {
+      try {
+        const { error } = await supabase
+          .from('spa_bookings')
+          .update({
+            status: 'CANCELLED',
+            cancelled_at: new Date().toISOString(),
+            cancel_reason: reason,
+            cancelled_by: 'SPA_OWNER',
+            rejected_by_spa: true,
+          })
+          .eq('id', bookingId);
+        if (error) console.warn('Supabase reject warning:', error);
+      } catch (err) {
+        console.warn('Supabase reject error:', err);
+      }
+    }
+
     const bookings = initSpaBookingsStorage();
     const index = bookings.findIndex((b) => b.id === bookingId);
-    if (index === -1) {
-      throw new Error('Không tìm thấy thông tin lịch hẹn');
+    if (index !== -1) {
+      bookings[index].status = 'CANCELLED';
+      bookings[index].cancelledAt = new Date().toISOString();
+      bookings[index].cancelReason = reason;
+      bookings[index].cancelledBy = 'SPA_OWNER';
+      bookings[index].rejectedBySpa = true;
+      storage.set('spa_bookings', bookings);
+      return bookings[index];
     }
-    const booking = bookings[index];
-    booking.status = 'CANCELLED';
-    booking.cancelledAt = new Date().toISOString();
-    booking.cancelReason = reason;
-    booking.cancelledBy = 'SPA_OWNER';
-    booking.rejectedBySpa = true;
-    bookings[index] = booking;
-    storage.set('spa_bookings', bookings);
-    return booking;
+    return { id: bookingId, status: 'CANCELLED', cancelReason: reason };
   },
 
   async getSpaBookings(status = 'ALL') {
-    await delay(150);
+    if (isSupabaseConfigured) {
+      try {
+        let query = supabase
+          .from('spa_bookings')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (status && status !== 'ALL') {
+          query = query.eq('status', status);
+        }
+
+        const { data, error } = await query;
+        if (!error && Array.isArray(data)) {
+          if (data.length > 0) {
+            const mapped = data.map(mapDbToBooking);
+            storage.set('spa_bookings', mapped);
+            return mapped;
+          } else {
+            // Seed initial sample bookings to Supabase so owner has data right away
+            const localInitial = initSpaBookingsStorage();
+            for (const item of localInitial) {
+              await supabase.from('spa_bookings').insert(mapBookingToDb(item));
+            }
+            return status === 'ALL'
+              ? localInitial
+              : localInitial.filter((b) => b.status === status);
+          }
+        }
+      } catch (err) {
+        console.warn('Supabase fetch error, fallback to local storage:', err);
+      }
+    }
+
+    await delay(100);
     const bookings = initSpaBookingsStorage();
     if (!status || status === 'ALL') {
       return bookings;
@@ -172,6 +291,21 @@ export const spaService = {
   },
 
   async getBookingById(id) {
+    if (isSupabaseConfigured) {
+      try {
+        const { data, error } = await supabase
+          .from('spa_bookings')
+          .select('*')
+          .eq('id', id)
+          .single();
+        if (!error && data) {
+          return mapDbToBooking(data);
+        }
+      } catch (err) {
+        console.warn('Supabase getBookingById error:', err);
+      }
+    }
+
     await delay(100);
     const bookings = initSpaBookingsStorage();
     const booking = bookings.find((b) => b.id === id);
@@ -214,32 +348,67 @@ export const spaService = {
   },
 
   async cancelSpaBooking(bookingId, cancelReason = 'Khách hàng hủy trực tuyến') {
-    await delay(300);
     const bookings = initSpaBookingsStorage();
     const index = bookings.findIndex((b) => b.id === bookingId);
-    if (index === -1) {
-      throw new Error('Không tìm thấy thông tin lịch hẹn cần hủy');
+    let targetBooking = index !== -1 ? bookings[index] : null;
+
+    if (targetBooking) {
+      const { canCancel, message } = this.checkBookingCancelable(targetBooking);
+      if (!canCancel) {
+        throw new Error(message || 'Không thể hủy lịch hẹn này');
+      }
     }
 
-    const booking = bookings[index];
-    const { canCancel, message } = this.checkBookingCancelable(booking);
-
-    if (!canCancel) {
-      throw new Error(message || 'Không thể hủy lịch hẹn này');
+    if (isSupabaseConfigured) {
+      try {
+        await supabase
+          .from('spa_bookings')
+          .update({
+            status: 'CANCELLED',
+            cancelled_at: new Date().toISOString(),
+            cancel_reason: cancelReason,
+            cancelled_by: 'CUSTOMER',
+            rejected_by_spa: false,
+          })
+          .eq('id', bookingId);
+      } catch (err) {
+        console.warn('Supabase customer cancel error:', err);
+      }
     }
 
-    const updatedBooking = {
-      ...booking,
-      status: 'CANCELLED',
-      cancelledAt: new Date().toISOString(),
-      cancelReason,
-      cancelledBy: 'CUSTOMER',
-      rejectedBySpa: false,
+    if (index !== -1) {
+      const updatedBooking = {
+        ...bookings[index],
+        status: 'CANCELLED',
+        cancelledAt: new Date().toISOString(),
+        cancelReason,
+        cancelledBy: 'CUSTOMER',
+        rejectedBySpa: false,
+      };
+      bookings[index] = updatedBooking;
+      storage.set('spa_bookings', bookings);
+      return updatedBooking;
+    }
+    return { id: bookingId, status: 'CANCELLED' };
+  },
+
+  subscribeToBookings(callback) {
+    if (!isSupabaseConfigured) return () => {};
+    const channel = supabase
+      .channel('realtime:spa_bookings')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'spa_bookings' },
+        (payload) => {
+          if (callback) callback(payload);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
     };
-
-    bookings[index] = updatedBooking;
-    storage.set('spa_bookings', bookings);
-    return updatedBooking;
   },
 };
+
 

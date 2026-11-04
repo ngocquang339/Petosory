@@ -73,6 +73,15 @@ export const BookingsPage = () => {
 
   useEffect(() => {
     fetchBookings();
+
+    // Subscribe to realtime updates from Supabase Cloud
+    const unsubscribe = spaService.subscribeToBookings(() => {
+      fetchBookings();
+    });
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
   }, [activeTab]);
 
   const showToast = (message) => {
