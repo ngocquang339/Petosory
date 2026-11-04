@@ -379,11 +379,12 @@ export const PetMapHeroView = () => {
           onRefreshArea={handleRefreshArea}
           onLocateUser={handleLocateUser}
           isLocating={isLocating}
+          hideOverlays={Boolean(bookingSpa)}
           className="w-full h-full min-h-[550px]"
         />
 
         {/* Floating Notification for Location Request / Status */}
-        {locationNotice && (
+        {locationNotice && !bookingSpa && (
           <div className="absolute top-16 left-4 z-[1001] max-w-sm animate-scale-up pointer-events-auto">
             <div
               className={`px-3.5 py-2.5 rounded-2xl text-xs font-semibold backdrop-blur-md shadow-2xl border flex items-center justify-between gap-2.5 ${
