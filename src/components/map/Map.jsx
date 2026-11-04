@@ -29,13 +29,13 @@ const MapController = ({ center, zoom }) => {
     if (center && center[0] && center[1]) {
       map.flyTo(center, zoom, { duration: 1.0 });
     }
-  }, [center, zoom, map]);
+  }, [center?.[0], center?.[1], zoom, map]);
 
   return null;
 };
 
 export const Map = ({
-  center = [21.0182, 105.8245],
+  center,
   zoom = 15,
   spas = [],
   selectedSpa,
@@ -49,8 +49,8 @@ export const Map = ({
   hideOverlays = false,
   className = 'h-[550px] min-h-[500px] w-full',
 }) => {
-  // Bản đồ đồng nhất giao diện sáng rõ nét (Google Maps) cho cả Chế độ Sáng & Chế độ Tối
-  const mapCenter = [userLocation.lat, userLocation.lng];
+  // Tâm bản đồ ưu tiên tọa độ mục tiêu (center khi tìm kiếm / chọn spa), hoặc vị trí người dùng
+  const mapCenter = center || (userLocation ? [userLocation.lat, userLocation.lng] : [21.0182, 105.8245]);
 
   return (
     <div
