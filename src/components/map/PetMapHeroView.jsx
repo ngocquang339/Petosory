@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
   MapPin,
@@ -19,6 +19,7 @@ import Map from './Map';
 import BookingModal from '../spa/BookingModal';
 import { INITIAL_SPAS } from '../../utils/constants';
 import { calculateDistanceNum } from '../../utils/helpers';
+import { spaService } from '../../services/spaService';
 
 export const PetMapHeroView = () => {
   // Filters matching screenshot dropdowns
@@ -31,6 +32,24 @@ export const PetMapHeroView = () => {
   const [spas, setSpas] = useState(INITIAL_SPAS);
   const [selectedSpa, setSelectedSpa] = useState(INITIAL_SPAS[0]); // Default selected: Petosory Flagship Spa
   const [bookingSpa, setBookingSpa] = useState(null);
+
+  // Load latest spas from Database Cloud & Local Storage
+  useEffect(() => {
+    const loadSpas = async () => {
+      try {
+        const data = await spaService.getSpas();
+        if (data && data.length > 0) {
+          setSpas(data);
+          if (!selectedSpa) {
+            setSelectedSpa(data[0]);
+          }
+        }
+      } catch (err) {
+        console.warn('Load spas error:', err);
+      }
+    };
+    loadSpas();
+  }, []);
 
   // User location state (defaults to Hồ Hoàng Cầu, Đống Đa, Hà Nội: [21.0182, 105.8245])
   const [userCoords, setUserCoords] = useState({ lat: 21.0182, lng: 105.8245 });

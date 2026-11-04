@@ -133,7 +133,69 @@ const initSpaBookingsStorage = () => {
 
 export const spaService = {
   async getSpas({ city = 'all', search = '' } = {}) {
-    await delay();
+    if (isSupabaseConfigured) {
+      try {
+        let query = supabase.from('spas').select('*');
+        if (city && city !== 'all') {
+          query = query.eq('city', city);
+        }
+        const { data, error } = await query;
+        if (!error && Array.isArray(data) && data.length > 0) {
+          const mappedSpas = data.map((row) => ({
+            id: row.id,
+            name: row.name,
+            address: row.address,
+            city: row.city || 'hanoi',
+            phone: row.phone,
+            lat: Number(row.lat),
+            lng: Number(row.lng),
+            rating: Number(row.rating || 5.0),
+            reviewCount: row.review_count || 0,
+            openTime: row.open_time || '08:00 - 20:30',
+            image:
+              row.image_url ||
+              'https://images.unsplash.com/photo-1548767797-d8c844163c4c?w=600&auto=format&fit=crop&q=80',
+            services: [
+              { name: 'Tắm spa sục ozon & sấy tạo kiểu', price: 180000, duration: '60 phút' },
+              { name: 'Cắt tỉa tạo kiểu lông Poodle chuẩn Hàn Quốc', price: 250000, duration: '90 phút' },
+            ],
+          }));
+          storage.set('spas', mappedSpas);
+          if (search.trim()) {
+            const q = search.toLowerCase();
+            return mappedSpas.filter(
+              (s) =>
+                s.name.toLowerCase().includes(q) ||
+                s.address.toLowerCase().includes(q)
+            );
+          }
+          return mappedSpas;
+        } else if (!error && Array.isArray(data) && data.length === 0) {
+          // Auto-seed default spas to Supabase
+          const localInitial = initSpasStorage();
+          for (const s of localInitial) {
+            await supabase.from('spas').insert({
+              id: s.id,
+              name: s.name,
+              address: s.address,
+              city: s.city || 'hanoi',
+              phone: s.phone,
+              lat: s.lat,
+              lng: s.lng,
+              rating: s.rating,
+              review_count: s.reviewCount || 0,
+              open_time: s.openTime || '08:00 - 20:30',
+              image_url: s.image,
+            });
+          }
+          return localInitial;
+        }
+      } catch (err) {
+        console.warn('Supabase getSpas error:', err);
+      }
+    }
+
+    await delay(100);
     let spas = initSpasStorage();
 
     if (city && city !== 'all') {
@@ -154,11 +216,108 @@ export const spaService = {
   },
 
   async getSpaById(id) {
-    await delay();
+    if (isSupabaseConfigured) {
+      try {
+        const { data, error } = await supabase
+          .from('spas')
+          .select('*')
+          .eq('id', id)
+          .single();
+        if (!error && data) {
+          return {
+            id: data.id,
+            name: data.name,
+            address: data.address,
+            city: data.city || 'hanoi',
+            phone: data.phone,
+            lat: Number(data.lat),
+            lng: Number(data.lng),
+            rating: Number(data.rating || 5.0),
+            reviewCount: data.review_count || 0,
+            openTime: data.open_time || '08:00 - 20:30',
+            image:
+              data.image_url ||
+              'https://images.unsplash.com/photo-1548767797-d8c844163c4c?w=600&auto=format&fit=crop&q=80',
+            services: [
+              { name: 'Tắm spa sục ozon & sấy tạo kiểu', price: 180000, duration: '60 phút' },
+              { name: 'Cắt tỉa tạo kiểu lông Poodle chuẩn Hàn Quốc', price: 250000, duration: '90 phút' },
+            ],
+          };
+        }
+      } catch (err) {
+        console.warn('Supabase getSpaById error:', err);
+      }
+    }
+
+    await delay(100);
     const spas = initSpasStorage();
     const spa = spas.find((s) => s.id === id);
     if (!spa) throw new Error('Không tìm thấy cơ sở Spa');
     return spa;
+  },
+
+  async saveSpa(spaData) {
+    const spas = initSpasStorage();
+    let id = spaData.id;
+    if (!id) {
+      id = 'spa-' + Date.now().toString().slice(-5);
+    }
+
+    const newSpa = {
+      id,
+      name: spaData.name || 'Cơ sở Spa mới',
+      address: spaData.address || '',
+      city: spaData.city || 'hanoi',
+      district: spaData.district || 'Đống Đa',
+      phone: spaData.phone || '',
+      lat: Number(spaData.lat) || 21.0182,
+      lng: Number(spaData.lng) || 105.8245,
+      rating: Number(spaData.rating) || 5.0,
+      reviewCount: Number(spaData.reviewCount) || 0,
+      openTime: spaData.openTime || '08:00 - 20:30',
+      isOpen: true,
+      image:
+        spaData.image ||
+        'https://images.unsplash.com/photo-1548767797-d8c844163c4c?w=600&auto=format&fit=crop&q=80',
+      services:
+        spaData.services && spaData.services.length > 0
+          ? spaData.services
+          : [
+              { name: 'Tắm spa sục ozon & sấy tạo kiểu', price: 180000, duration: '60 phút' },
+              { name: 'Cắt tỉa tạo kiểu lông Poodle chuẩn Hàn Quốc', price: 250000, duration: '90 phút' },
+            ],
+    };
+
+    if (isSupabaseConfigured) {
+      try {
+        const dbPayload = {
+          id: newSpa.id,
+          name: newSpa.name,
+          address: newSpa.address,
+          city: newSpa.city,
+          phone: newSpa.phone,
+          lat: newSpa.lat,
+          lng: newSpa.lng,
+          rating: newSpa.rating,
+          review_count: newSpa.reviewCount,
+          open_time: newSpa.openTime,
+          image_url: newSpa.image,
+        };
+        const { error } = await supabase.from('spas').upsert(dbPayload);
+        if (error) console.warn('Supabase upsert spa error:', error);
+      } catch (err) {
+        console.warn('Supabase saveSpa failed:', err);
+      }
+    }
+
+    const index = spas.findIndex((s) => s.id === id);
+    if (index !== -1) {
+      spas[index] = newSpa;
+    } else {
+      spas.unshift(newSpa);
+    }
+    storage.set('spas', spas);
+    return newSpa;
   },
 
   async bookSpaService(booking) {

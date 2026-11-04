@@ -83,7 +83,7 @@ export const OwnerDashboardPage = () => {
                 : 'text-purple-200 hover:text-white'
             }`}
           >
-            <Settings className="w-4 h-4" /> Quản lý dịch vụ & Menu
+            <Settings className="w-4 h-4" /> Định vị cơ sở & Menu dịch vụ
           </button>
         </div>
       </div>
@@ -96,7 +96,10 @@ export const OwnerDashboardPage = () => {
           onRejectBooking={handleRejectBooking}
         />
       ) : (
-        <Management spa={spa} />
+        <Management
+          spa={spa}
+          onSpaUpdated={(updated) => setSpa(updated)}
+        />
       )}
     </div>
   );
