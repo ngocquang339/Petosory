@@ -48,6 +48,7 @@ export const Header = () => {
     { label: 'Trang chủ', path: '/' },
     { label: 'Bản đồ Pet Map 🐾', path: '/map' },
     { label: 'Cửa hàng', path: '/shop' },
+    { label: 'Lịch hẹn 📅', path: '/bookings' },
     { label: 'Cẩm nang Pet', path: '/blogs' },
   ];
 
@@ -220,6 +221,14 @@ export const Header = () => {
                     >
                       <User className="w-4 h-4 text-orange-500" />
                       <span>Hồ sơ & Thú cưng</span>
+                    </Link>
+
+                    <Link
+                      to="/bookings"
+                      className="flex items-center gap-2.5 px-4 py-2.5 text-xs text-slate-700 dark:text-slate-200 hover:bg-orange-50 dark:hover:bg-slate-700 transition-colors"
+                    >
+                      <Calendar className="w-4 h-4 text-emerald-500" />
+                      <span>Lịch hẹn của tôi</span>
                     </Link>
 
                     <Link

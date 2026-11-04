@@ -118,9 +118,15 @@ export const Dashboard = ({ bookings = [] }) => {
                       {b.bookingTime} - {b.bookingDate}
                     </td>
                     <td className="py-3">
-                      <span className="bg-emerald-100 text-emerald-700 px-2.5 py-0.5 rounded-full text-[10px] font-bold">
-                        ĐÃ XÁC NHẬN
-                      </span>
+                      {b.status === 'CANCELLED' ? (
+                        <span className="bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 px-2.5 py-0.5 rounded-full text-[10px] font-bold">
+                          ĐÃ HỦY
+                        </span>
+                      ) : (
+                        <span className="bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 px-2.5 py-0.5 rounded-full text-[10px] font-bold">
+                          ĐÃ XÁC NHẬN
+                        </span>
+                      )}
                     </td>
                   </tr>
                 ))}

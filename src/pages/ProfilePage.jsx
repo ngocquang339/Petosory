@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   User,
   PawPrint,
@@ -8,6 +9,8 @@ import {
   Check,
   ShieldCheck,
   Camera,
+  Calendar,
+  ChevronRight,
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { authService } from '../services/authService';
@@ -190,6 +193,19 @@ export const ProfilePage = () => {
               <KeyRound className="w-4 h-4" />
               <span>Đổi mật khẩu (Change Password)</span>
             </button>
+
+            <div className="pt-2 border-t border-slate-100 dark:border-slate-700/80">
+              <Link
+                to="/bookings"
+                className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-orange-50 dark:hover:bg-slate-700/60 hover:text-orange-600 transition-colors cursor-pointer"
+              >
+                <div className="flex items-center gap-3">
+                  <Calendar className="w-4 h-4 text-emerald-500" />
+                  <span>Quản lý Lịch hẹn của tôi</span>
+                </div>
+                <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+              </Link>
+            </div>
           </div>
         </div>
 

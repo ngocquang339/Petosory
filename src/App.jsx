@@ -19,6 +19,7 @@ import CartPage from './pages/CartPage';
 import CheckoutPage from './pages/CheckoutPage';
 import OrdersPage from './pages/OrdersPage';
 import OrderDetailPage from './pages/OrderDetailPage';
+import BookingsPage from './pages/BookingsPage';
 import ProfilePage from './pages/ProfilePage';
 import BlogPage from './pages/BlogPage';
 import BlogDetailPage from './pages/BlogDetailPage';
@@ -47,6 +48,7 @@ function App() {
                     <Route path="/checkout" element={<CheckoutPage />} />
                     <Route path="/orders" element={<OrdersPage />} />
                     <Route path="/orders/:id" element={<OrderDetailPage />} />
+                    <Route path="/bookings" element={<BookingsPage />} />
                     <Route path="/profile" element={<ProfilePage />} />
                     <Route path="/blogs" element={<BlogPage />} />
                     <Route path="/blogs/:id" element={<BlogDetailPage />} />

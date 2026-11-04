@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Calendar, Clock, PawPrint, Phone, User, CheckCircle2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Calendar, Clock, PawPrint, Phone, User, CheckCircle2, AlertCircle } from 'lucide-react';
 import Modal from '../common/Modal';
 import Button from '../common/Button';
 import Input from '../common/Input';
@@ -8,11 +9,12 @@ import { spaService } from '../../services/spaService';
 import { formatCurrency } from '../../utils/helpers';
 
 export const BookingModal = ({ isOpen, onClose, spa }) => {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [selectedService, setSelectedService] = useState(spa?.services?.[0]?.name || '');
   const [petName, setPetName] = useState(user?.pets?.[0]?.name || '');
   const [petType, setPetType] = useState(user?.pets?.[0]?.type || 'cat');
-  const [bookingDate, setBookingDate] = useState('2026-11-01');
+  const [bookingDate, setBookingDate] = useState('2026-11-05');
   const [bookingTime, setBookingTime] = useState('09:30');
   const [contactName, setContactName] = useState(user?.fullName || '');
   const [contactPhone, setContactPhone] = useState(user?.phone || '');
@@ -22,6 +24,8 @@ export const BookingModal = ({ isOpen, onClose, spa }) => {
 
   if (!spa) return null;
 
+  const matchedService = spa.services?.find((s) => s.name === selectedService);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -30,7 +34,9 @@ export const BookingModal = ({ isOpen, onClose, spa }) => {
         spaId: spa.id,
         spaName: spa.name,
         spaAddress: spa.address,
+        spaPhone: spa.phone || '0988 123 456',
         serviceName: selectedService,
+        price: matchedService?.price || 180000,
         petName,
         petType,
         bookingDate,
@@ -60,7 +66,7 @@ export const BookingModal = ({ isOpen, onClose, spa }) => {
       maxWidth="max-w-xl"
     >
       {successBooking ? (
-        <div className="text-center py-6 space-y-4">
+        <div className="text-center py-5 space-y-4">
           <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-md">
             <CheckCircle2 className="w-10 h-10" />
           </div>
@@ -69,13 +75,13 @@ export const BookingModal = ({ isOpen, onClose, spa }) => {
           </h3>
           <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl text-left text-xs space-y-2 border border-slate-100 dark:border-slate-700">
             <p>
-              <strong>Mã lịch hẹn:</strong> {successBooking.id}
+              <strong>Mã lịch hẹn:</strong> <span className="font-mono text-orange-600 font-bold">{successBooking.id}</span>
             </p>
             <p>
               <strong>Spa:</strong> {successBooking.spaName}
             </p>
             <p>
-              <strong>Dịch vụ:</strong> {successBooking.serviceName}
+              <strong>Dịch vụ:</strong> {successBooking.serviceName} {successBooking.price ? `(${formatCurrency(successBooking.price)})` : ''}
             </p>
             <p>
               <strong>Thú cưng:</strong> {successBooking.petName} (
@@ -86,12 +92,33 @@ export const BookingModal = ({ isOpen, onClose, spa }) => {
               {successBooking.bookingDate}
             </p>
           </div>
+
+          <div className="p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 rounded-xl text-left text-[11px] text-amber-800 dark:text-amber-200 flex items-start gap-2">
+            <Clock className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+            <div>
+              <strong className="font-bold">Chính sách hủy lịch:</strong> Bạn có thể xem lại thông tin và hủy lịch hẹn trực tuyến trong vòng <strong>3 giờ</strong> kể từ lúc đặt hẹn. Sau 3 giờ, hệ thống sẽ chốt lịch và chuyển tiếp đón đến nhân viên Spa.
+            </div>
+          </div>
+
           <p className="text-xs text-slate-500">
             Nhân viên CSKH của Spa sẽ gọi điện thoại tới số <strong>{successBooking.contactPhone}</strong> trước 30 phút để xác nhận tiếp đón bé.
           </p>
-          <Button variant="primary" size="md" onClick={handleClose} className="w-full">
-            Hoàn tất
-          </Button>
+          <div className="flex items-center gap-2 pt-2">
+            <Button
+              variant="primary"
+              size="md"
+              onClick={() => {
+                handleClose();
+                navigate('/bookings');
+              }}
+              className="flex-1"
+            >
+              Xem danh sách lịch hẹn
+            </Button>
+            <Button variant="outline" size="md" onClick={handleClose} className="flex-1">
+              Đóng
+            </Button>
+          </div>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -204,6 +231,14 @@ export const BookingModal = ({ isOpen, onClose, spa }) => {
               placeholder="VD: Bé hơi nhát nước, xin vui lòng thao tác nhẹ nhàng..."
               className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
+          </div>
+
+          {/* Policy reminder */}
+          <div className="p-2.5 rounded-xl bg-orange-50 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-800/40 text-[11px] text-orange-800 dark:text-orange-200 flex items-center gap-2">
+            <Clock className="w-4 h-4 text-orange-600 shrink-0" />
+            <span>
+              <strong>Lưu ý:</strong> Bạn có thể hủy lịch trực tuyến miễn phí trong vòng <strong>3 giờ</strong> kể từ lúc đặt hẹn. Quá 3 giờ sẽ không thể hủy trực tuyến.
+            </span>
           </div>
 
           <div className="flex justify-end gap-3 pt-2">
