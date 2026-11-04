@@ -10,12 +10,14 @@ import {
   CheckCircle2,
   XCircle,
   AlertCircle,
+  AlertTriangle,
   Sparkles,
   Info,
   ShieldCheck,
   Plus,
   ArrowRight,
   RotateCcw,
+  X,
 } from 'lucide-react';
 import { spaService } from '../services/spaService';
 import { formatCurrency } from '../utils/helpers';
@@ -28,6 +30,7 @@ export const BookingsPage = () => {
   const [allBookings, setAllBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('ALL');
+  const [dismissRejectedBanner, setDismissRejectedBanner] = useState(false);
 
   // Cancel Modal State
   const [cancelModalBooking, setCancelModalBooking] = useState(null);
@@ -132,12 +135,15 @@ export const BookingsPage = () => {
   const pendingCount = allBookings.filter((b) => b.status === 'PENDING').length;
   const confirmedCount = allBookings.filter((b) => b.status === 'CONFIRMED').length;
   const cancelledCount = allBookings.filter((b) => b.status === 'CANCELLED').length;
+  const rejectedBookings = allBookings.filter(
+    (b) => b.status === 'CANCELLED' && (b.rejectedBySpa || b.cancelledBy === 'SPA_OWNER')
+  );
 
   const tabs = [
     { id: 'ALL', label: 'Tất cả lịch hẹn' },
     { id: 'PENDING', label: 'Chờ Spa xác nhận' },
     { id: 'CONFIRMED', label: 'Đã xác nhận' },
-    { id: 'CANCELLED', label: 'Đã hủy' },
+    { id: 'CANCELLED', label: 'Đã hủy / Bị từ chối' },
   ];
 
   return (
@@ -179,6 +185,52 @@ export const BookingsPage = () => {
           </Button>
         </Link>
       </div>
+
+      {/* Spa Rejection Notice Banner for Customer */}
+      {rejectedBookings.length > 0 && !dismissRejectedBanner && (
+        <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-rose-50 via-rose-100/60 to-amber-50 dark:from-rose-950/50 dark:via-rose-900/30 dark:to-slate-900 border-2 border-rose-300 dark:border-rose-800 shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-4 animate-scale-up">
+          <div className="flex items-start gap-3.5">
+            <div className="w-10 h-10 rounded-2xl bg-rose-500 text-white flex items-center justify-center shrink-0 shadow-md shadow-rose-500/30">
+              <AlertTriangle className="w-5 h-5" />
+            </div>
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-rose-200 dark:bg-rose-900 text-rose-800 dark:text-rose-200">
+                  Thông báo từ Chủ Spa
+                </span>
+                <span className="text-xs text-rose-700 dark:text-rose-300 font-bold">
+                  {rejectedBookings.length} lịch hẹn bị từ chối tiếp nhận
+                </span>
+              </div>
+              <h4 className="text-sm font-bold text-slate-900 dark:text-white">
+                Spa <strong>{rejectedBookings[0].spaName}</strong> đã từ chối lịch hẹn #{rejectedBookings[0].id}
+              </h4>
+              <div className="text-xs text-rose-900 dark:text-rose-200 bg-white/80 dark:bg-slate-900/80 p-2.5 rounded-xl border border-rose-200 dark:border-rose-900/60 leading-relaxed">
+                <span className="font-semibold text-rose-700 dark:text-rose-400">Lý do từ chủ Spa: </span>
+                <strong className="italic">"{rejectedBookings[0].cancelReason || 'Quán có việc bận nên đóng cửa'}"</strong>
+              </div>
+              <p className="text-[11px] text-slate-600 dark:text-slate-400">
+                Rất tiếc vì sự bất tiện này. Quý khách có thể lựa chọn cơ sở Spa khác gần khu vực hoặc đặt lại vào một khung giờ khác.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0 self-end md:self-center">
+            <Link to="/map">
+              <Button variant="primary" size="sm" icon={RotateCcw}>
+                Đặt lịch cơ sở khác
+              </Button>
+            </Link>
+            <button
+              onClick={() => setDismissRejectedBanner(true)}
+              className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg hover:bg-white/50 dark:hover:bg-slate-800 cursor-pointer"
+              title="Đóng thông báo"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Cancellation Policy Banner (chính sách chỉ cho hủy trong khoảng 3h) */}
       <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-orange-50 via-amber-50 to-orange-100/50 dark:from-orange-950/30 dark:via-amber-950/20 dark:to-slate-900 border border-orange-200/80 dark:border-orange-800/40 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
@@ -275,12 +327,15 @@ export const BookingsPage = () => {
             const isPending = booking.status === 'PENDING';
             const isConfirmed = booking.status === 'CONFIRMED';
             const isCancelled = booking.status === 'CANCELLED';
+            const isRejectedBySpa = isCancelled && (booking.rejectedBySpa || booking.cancelledBy === 'SPA_OWNER');
 
             return (
               <div
                 key={booking.id}
                 className={`bg-white dark:bg-[#111928] rounded-2xl border transition-all hover:shadow-md ${
-                  isCancelled
+                  isRejectedBySpa
+                    ? 'border-rose-300 dark:border-rose-900/80 bg-rose-50/15 dark:bg-rose-950/20 shadow-xs'
+                    : isCancelled
                     ? 'border-slate-200 dark:border-slate-800/80 opacity-90'
                     : isPending
                     ? 'border-amber-300 dark:border-amber-800/80 hover:border-amber-500'
@@ -311,12 +366,17 @@ export const BookingsPage = () => {
                         ĐÃ XÁC NHẬN
                       </span>
                     )}
-                    {isCancelled && (
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-300 dark:border-rose-800">
+                    {isRejectedBySpa ? (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-800 dark:bg-rose-950/80 dark:text-rose-300 border border-rose-300 dark:border-rose-800">
                         <XCircle className="w-3.5 h-3.5 text-rose-600" />
-                        ĐÃ HỦY
+                        SPA TỪ CHỐI TIẾP NHẬN
                       </span>
-                    )}
+                    ) : isCancelled ? (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-300 dark:border-slate-700">
+                        <XCircle className="w-3.5 h-3.5 text-slate-500" />
+                        BẠN ĐÃ HỦY
+                      </span>
+                    ) : null}
                   </div>
                 </div>
 
@@ -516,33 +576,80 @@ export const BookingsPage = () => {
 
                     {/* CANCELLED state */}
                     {isCancelled && (
-                      <div className="space-y-2">
-                        <div className="p-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800/50 text-[11px] text-rose-800 dark:text-rose-300">
-                          <p className="font-bold text-rose-700 dark:text-rose-400">
-                            Đã hủy lúc:
-                          </p>
-                          <p className="text-[10px]">{formatDateTime(booking.cancelledAt)}</p>
-                          {booking.cancelReason && (
-                            <p className="mt-1 text-[10px] italic">
-                              "{booking.cancelReason}"
+                      isRejectedBySpa ? (
+                        <div className="space-y-2.5">
+                          <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 text-xs space-y-1.5">
+                            <div className="flex items-center gap-1.5 font-bold text-rose-700 dark:text-rose-400">
+                              <AlertTriangle className="w-4 h-4 shrink-0 text-rose-600" />
+                              <span>Spa đã từ chối tiếp nhận</span>
+                            </div>
+                            <p className="text-[10px] text-slate-500 dark:text-slate-400">
+                              Thời gian: {formatDateTime(booking.cancelledAt)}
                             </p>
-                          )}
-                        </div>
+                            <div className="p-2 rounded-lg bg-white/90 dark:bg-slate-900/90 border border-rose-200 dark:border-rose-900/60 text-[11px] text-rose-900 dark:text-rose-200">
+                              <span className="text-[10px] text-slate-500 block font-normal">Lý do từ chủ Spa:</span>
+                              <strong className="font-semibold italic">"{booking.cancelReason || 'Quán có việc bận nên đóng cửa'}"</strong>
+                            </div>
+                          </div>
 
-                        <Link
-                          to={`/spa/${booking.spaId || 'spa-1'}`}
-                          className="block w-full"
-                        >
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            icon={RotateCcw}
-                            className="w-full text-xs"
+                          <Link to="/map" className="block w-full">
+                            <Button
+                              variant="primary"
+                              size="sm"
+                              icon={RotateCcw}
+                              className="w-full text-xs"
+                            >
+                              Đặt lịch cơ sở khác
+                            </Button>
+                          </Link>
+
+                          <button
+                            type="button"
+                            onClick={() => setDetailBooking(booking)}
+                            className="w-full py-1 px-3 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center justify-center gap-1 cursor-pointer"
                           >
-                            Đặt lại dịch vụ này
-                          </Button>
-                        </Link>
-                      </div>
+                            <span>Xem chi tiết</span>
+                            <ArrowRight className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60 text-[11px] text-slate-700 dark:text-slate-300">
+                            <p className="font-bold text-slate-600 dark:text-slate-400">
+                              Bạn đã hủy lúc:
+                            </p>
+                            <p className="text-[10px]">{formatDateTime(booking.cancelledAt)}</p>
+                            {booking.cancelReason && (
+                              <p className="mt-1 text-[10px] italic">
+                                "{booking.cancelReason}"
+                              </p>
+                            )}
+                          </div>
+
+                          <Link
+                            to={`/spa/${booking.spaId || 'spa-1'}`}
+                            className="block w-full"
+                          >
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              icon={RotateCcw}
+                              className="w-full text-xs"
+                            >
+                              Đặt lại dịch vụ này
+                            </Button>
+                          </Link>
+
+                          <button
+                            type="button"
+                            onClick={() => setDetailBooking(booking)}
+                            className="w-full py-1 px-3 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center justify-center gap-1 cursor-pointer"
+                          >
+                            <span>Xem chi tiết</span>
+                            <ArrowRight className="w-3 h-3" />
+                          </button>
+                        </div>
+                      )
                     )}
                   </div>
                 </div>
@@ -680,9 +787,13 @@ export const BookingsPage = () => {
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-300">
                   <CheckCircle2 className="w-3 h-3 text-emerald-600" /> ĐÃ XÁC NHẬN
                 </span>
+              ) : detailBooking.rejectedBySpa || detailBooking.cancelledBy === 'SPA_OWNER' ? (
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-800 dark:bg-rose-950/70 dark:text-rose-300 border border-rose-300">
+                  <XCircle className="w-3 h-3 text-rose-600" /> SPA TỪ CHỐI TIẾP NHẬN
+                </span>
               ) : (
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-300">
-                  <XCircle className="w-3 h-3 text-rose-600" /> ĐÃ HỦY
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-300">
+                  <XCircle className="w-3 h-3 text-slate-500" /> BẠN ĐÃ HỦY
                 </span>
               )}
             </div>
@@ -741,10 +852,32 @@ export const BookingsPage = () => {
                 </div>
               )}
               {detailBooking.status === 'CANCELLED' && (
-                <div className="pt-2 border-t border-slate-100 dark:border-slate-800 text-rose-600">
-                  <span className="text-slate-500 block mb-1">Thông tin hủy lịch:</span>
-                  <p>Hủy lúc: {formatDateTime(detailBooking.cancelledAt)}</p>
-                  <p>Lý do: {detailBooking.cancelReason}</p>
+                <div
+                  className={`pt-2.5 border-t border-slate-100 dark:border-slate-800 space-y-1.5 ${
+                    detailBooking.rejectedBySpa || detailBooking.cancelledBy === 'SPA_OWNER'
+                      ? 'text-rose-800 dark:text-rose-300'
+                      : 'text-slate-600 dark:text-slate-300'
+                  }`}
+                >
+                  <span className="font-bold flex items-center gap-1.5 text-xs">
+                    <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
+                    {detailBooking.rejectedBySpa || detailBooking.cancelledBy === 'SPA_OWNER'
+                      ? 'Thông tin từ chối từ Chủ Spa:'
+                      : 'Thông tin hủy lịch hẹn:'}
+                  </span>
+                  <p className="text-[11px] text-slate-500">
+                    Thời điểm: {formatDateTime(detailBooking.cancelledAt)}
+                  </p>
+                  <div className="p-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-xs">
+                    <span className="text-[10px] text-slate-500 block mb-0.5">
+                      {detailBooking.rejectedBySpa || detailBooking.cancelledBy === 'SPA_OWNER'
+                        ? 'Lý do cụ thể từ Chủ Spa:'
+                        : 'Lý do hủy:'}
+                    </span>
+                    <strong className="text-rose-900 dark:text-rose-200 font-bold italic">
+                      "{detailBooking.cancelReason || 'Quán có việc bận nên đóng cửa'}"
+                    </strong>
+                  </div>
                 </div>
               )}
             </div>

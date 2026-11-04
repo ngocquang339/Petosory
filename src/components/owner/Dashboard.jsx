@@ -6,18 +6,28 @@ import {
   TrendingUp,
   Sparkles,
   AlertCircle,
+  AlertTriangle,
   Clock,
   Check,
   CheckCircle2,
   XCircle,
+  X,
 } from 'lucide-react';
 import { formatCurrency } from '../../utils/helpers';
 import { spaService } from '../../services/spaService';
+import Modal from '../common/Modal';
+import Button from '../common/Button';
 
 export const Dashboard = ({ bookings = [], onConfirmBooking, onRejectBooking }) => {
   const [localBookings, setLocalBookings] = useState(bookings);
   const [processingId, setProcessingId] = useState(null);
   const [successToast, setSuccessToast] = useState(null);
+
+  // Reject Modal State
+  const [rejectModalBooking, setRejectModalBooking] = useState(null);
+  const [rejectReason, setRejectReason] = useState('Quán có việc bận nên đóng cửa');
+  const [customReason, setCustomReason] = useState('');
+  const [isRejecting, setIsRejecting] = useState(false);
 
   useEffect(() => {
     setLocalBookings(bookings);
@@ -43,26 +53,48 @@ export const Dashboard = ({ bookings = [], onConfirmBooking, onRejectBooking }) 
     }
   };
 
-  const handleReject = async (id) => {
-    if (!window.confirm(`Bạn có chắc chắn muốn từ chối lịch hẹn #${id}?`)) return;
-    setProcessingId(id);
+  const handleOpenRejectModal = (booking) => {
+    setRejectModalBooking(booking);
+    setRejectReason('Quán có việc bận nên đóng cửa');
+    setCustomReason('');
+  };
+
+  const handleConfirmReject = async () => {
+    if (!rejectModalBooking) return;
+    const finalReason =
+      rejectReason === 'Khác' && customReason.trim()
+        ? customReason.trim()
+        : rejectReason;
+
+    setIsRejecting(true);
+    const id = rejectModalBooking.id;
     try {
       if (onRejectBooking) {
-        await onRejectBooking(id);
+        await onRejectBooking(id, finalReason);
       } else {
-        await spaService.rejectSpaBooking(id);
+        await spaService.rejectSpaBooking(id, finalReason);
       }
       setLocalBookings((prev) =>
         prev.map((b) =>
-          b.id === id ? { ...b, status: 'CANCELLED', cancelReason: 'Spa từ chối tiếp nhận' } : b
+          b.id === id
+            ? {
+                ...b,
+                status: 'CANCELLED',
+                cancelReason: finalReason,
+                cancelledBy: 'SPA_OWNER',
+                rejectedBySpa: true,
+                cancelledAt: new Date().toISOString(),
+              }
+            : b
         )
       );
-      setSuccessToast(`Đã từ chối lịch hẹn #${id}!`);
-      setTimeout(() => setSuccessToast(null), 3500);
+      setRejectModalBooking(null);
+      setSuccessToast(`Đã từ chối lịch hẹn #${id} (Lý do: "${finalReason}")`);
+      setTimeout(() => setSuccessToast(null), 4000);
     } catch (err) {
       alert(err.message || 'Lỗi khi từ chối lịch hẹn');
     } finally {
-      setProcessingId(null);
+      setIsRejecting(false);
     }
   };
   const stats = [
@@ -211,10 +243,18 @@ export const Dashboard = ({ bookings = [], onConfirmBooking, onRejectBooking }) 
                           <CheckCircle2 className="w-3 h-3 text-emerald-600" />
                           ĐÃ XÁC NHẬN
                         </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 px-2.5 py-0.5 rounded-full text-[10px] font-bold border border-rose-300 dark:border-rose-800">
+                      ) : b.rejectedBySpa || b.cancelledBy === 'SPA_OWNER' ? (
+                        <span
+                          className="inline-flex items-center gap-1 bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 px-2.5 py-0.5 rounded-full text-[10px] font-bold border border-rose-300 dark:border-rose-800"
+                          title={`Lý do: ${b.cancelReason || 'Spa từ chối tiếp nhận'}`}
+                        >
                           <XCircle className="w-3 h-3 text-rose-600" />
-                          ĐÃ HỦY
+                          SPA TỪ CHỐI
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-2.5 py-0.5 rounded-full text-[10px] font-bold border border-slate-300 dark:border-slate-700">
+                          <XCircle className="w-3 h-3 text-slate-500" />
+                          KHÁCH HỦY
                         </span>
                       )}
                     </td>
@@ -233,7 +273,7 @@ export const Dashboard = ({ bookings = [], onConfirmBooking, onRejectBooking }) 
                           </button>
                           <button
                             type="button"
-                            onClick={() => handleReject(b.id)}
+                            onClick={() => handleOpenRejectModal(b)}
                             disabled={processingId === b.id}
                             className="inline-flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-semibold rounded-xl text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-rose-200 dark:border-rose-800 transition disabled:opacity-50 cursor-pointer active:scale-95"
                             title="Từ chối lịch hẹn"
@@ -247,7 +287,7 @@ export const Dashboard = ({ bookings = [], onConfirmBooking, onRejectBooking }) 
                         </span>
                       ) : (
                         <span className="text-[11px] text-slate-400">
-                          Đã đóng
+                          {b.rejectedBySpa || b.cancelledBy === 'SPA_OWNER' ? 'Đã từ chối' : 'Đã đóng'}
                         </span>
                       )}
                     </td>
@@ -258,6 +298,96 @@ export const Dashboard = ({ bookings = [], onConfirmBooking, onRejectBooking }) 
           </div>
         )}
       </div>
+
+      {/* REJECT BOOKING MODAL */}
+      {rejectModalBooking && (
+        <Modal
+          isOpen={Boolean(rejectModalBooking)}
+          onClose={() => setRejectModalBooking(null)}
+          title={`Từ chối tiếp nhận lịch hẹn #${rejectModalBooking.id}`}
+          maxWidth="max-w-lg"
+        >
+          <div className="space-y-4">
+            <div className="p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+              <div className="text-xs text-amber-900 dark:text-amber-200 space-y-1">
+                <p className="font-bold">
+                  Khách hàng sẽ nhận được thông báo về việc từ chối tiếp nhận kèm lý do bạn chọn dưới đây.
+                </p>
+                <p className="text-[11px] text-amber-800 dark:text-amber-300">
+                  Khách: <strong>{rejectModalBooking.contactName}</strong> ({rejectModalBooking.contactPhone}) • Bé: <strong>{rejectModalBooking.petName}</strong> • Giờ hẹn: <strong>{rejectModalBooking.bookingTime} - {rejectModalBooking.bookingDate}</strong>
+                </p>
+              </div>
+            </div>
+
+            {/* Reason selector */}
+            <div className="space-y-2">
+              <label className="block text-xs font-bold text-slate-800 dark:text-slate-200">
+                Chọn lý do từ chối tiếp nhận:
+              </label>
+
+              {[
+                'Quán có việc bận nên đóng cửa',
+                'Khung giờ này Spa đã kín chỗ / quá tải phục vụ',
+                'Dịch vụ yêu cầu hiện đang bảo trì thiết bị hoặc tạm ngưng',
+                'Không đủ kỹ thuật viên chuyên môn / bác sĩ trong ca này',
+                'Khác',
+              ].map((reason) => (
+                <label
+                  key={reason}
+                  className={`flex items-center gap-2.5 p-3 rounded-xl border text-xs cursor-pointer transition-all ${
+                    rejectReason === reason
+                      ? 'border-orange-500 bg-orange-50/60 dark:bg-orange-950/40 font-bold text-orange-900 dark:text-orange-200 shadow-xs'
+                      : 'border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="rejectReason"
+                    value={reason}
+                    checked={rejectReason === reason}
+                    onChange={(e) => setRejectReason(e.target.value)}
+                    className="text-orange-600 focus:ring-orange-500 w-4 h-4"
+                  />
+                  <span>{reason}</span>
+                </label>
+              ))}
+
+              {rejectReason === 'Khác' && (
+                <div className="pt-1">
+                  <textarea
+                    rows={3}
+                    value={customReason}
+                    onChange={(e) => setCustomReason(e.target.value)}
+                    placeholder="Nhập lý do cụ thể gửi tới khách hàng..."
+                    className="w-full p-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-orange-500 focus:outline-none"
+                    autoFocus
+                  />
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+              <Button
+                variant="outline"
+                size="md"
+                onClick={() => setRejectModalBooking(null)}
+                disabled={isRejecting}
+              >
+                Hủy bỏ
+              </Button>
+              <Button
+                variant="danger"
+                size="md"
+                onClick={handleConfirmReject}
+                loading={isRejecting}
+              >
+                Xác nhận Từ chối
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 };

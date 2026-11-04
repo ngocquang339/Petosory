@@ -144,7 +144,7 @@ export const spaService = {
     return booking;
   },
 
-  async rejectSpaBooking(bookingId, reason = 'Spa từ chối tiếp nhận (quá tải / kín lịch)') {
+  async rejectSpaBooking(bookingId, reason = 'Quán có việc bận nên đóng cửa') {
     await delay(250);
     const bookings = initSpaBookingsStorage();
     const index = bookings.findIndex((b) => b.id === bookingId);
@@ -155,6 +155,8 @@ export const spaService = {
     booking.status = 'CANCELLED';
     booking.cancelledAt = new Date().toISOString();
     booking.cancelReason = reason;
+    booking.cancelledBy = 'SPA_OWNER';
+    booking.rejectedBySpa = true;
     bookings[index] = booking;
     storage.set('spa_bookings', bookings);
     return booking;
@@ -231,6 +233,8 @@ export const spaService = {
       status: 'CANCELLED',
       cancelledAt: new Date().toISOString(),
       cancelReason,
+      cancelledBy: 'CUSTOMER',
+      rejectedBySpa: false,
     };
 
     bookings[index] = updatedBooking;
