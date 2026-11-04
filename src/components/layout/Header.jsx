@@ -46,7 +46,6 @@ export const Header = () => {
 
   const navLinks = [
     { label: 'Trang chủ', path: '/' },
-    { label: 'Bản đồ Pet Map 🐾', path: '/map' },
     { label: 'Cửa hàng', path: '/shop' },
     { label: 'Lịch hẹn 📅', path: '/bookings' },
     { label: 'Cẩm nang Pet', path: '/blogs' },

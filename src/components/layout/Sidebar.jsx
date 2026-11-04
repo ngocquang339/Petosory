@@ -1,15 +1,15 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Home, MapPin, ShoppingBag, BookOpen, Package, User, Heart, Settings } from 'lucide-react';
+import { Home, Calendar, ShoppingBag, BookOpen, Package, User, Heart, Settings } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 
 export const Sidebar = ({ className = '' }) => {
   const { user } = useAuth();
 
   const links = [
-    { label: 'Trang chủ', path: '/', icon: Home },
-    { label: 'Bản đồ Pet Map', path: '/map', icon: MapPin },
+    { label: 'Trang chủ (Pet Map)', path: '/', icon: Home },
     { label: 'Cửa hàng Pet Shop', path: '/shop', icon: ShoppingBag },
+    { label: 'Lịch hẹn của tôi', path: '/bookings', icon: Calendar },
     { label: 'Cẩm nang nuôi thú cưng', path: '/blogs', icon: BookOpen },
     { label: 'Đơn hàng của tôi', path: '/orders', icon: Package },
     { label: 'Hồ sơ & Thú cưng', path: '/profile', icon: User },

@@ -52,8 +52,8 @@ export const SpaDetailPage = () => {
     return (
       <div className="max-w-7xl mx-auto px-4 py-20 text-center">
         <h2 className="text-xl font-bold">Không tìm thấy cơ sở Spa</h2>
-        <Link to="/map" className="text-orange-600 text-xs font-bold underline mt-2 block">
-          Quay lại bản đồ Pet Map
+        <Link to="/" className="text-orange-600 text-xs font-bold underline mt-2 block">
+          Quay lại Trang chủ
         </Link>
       </div>
     );
@@ -64,8 +64,6 @@ export const SpaDetailPage = () => {
       {/* Breadcrumb */}
       <nav className="flex items-center gap-2 text-xs text-slate-500">
         <Link to="/" className="hover:text-orange-600">Trang chủ</Link>
-        <ChevronRight className="w-3.5 h-3.5" />
-        <Link to="/map" className="hover:text-orange-600">Bản đồ Pet Map</Link>
         <ChevronRight className="w-3.5 h-3.5" />
         <span className="text-slate-800 dark:text-white font-medium truncate">{spa.name}</span>
       </nav>
